@@ -1,0 +1,61 @@
+:root { --green: #1d3154; --dark: #172744; --cream: #faf8f5; --gold: #d17858; --line: #e6e4df; color: #24344d; }
+body { min-width: 320px; font-size: 17px; line-height: 1.55; background: #faf8f5; }
+.admin-sidebar { background: #172744; }
+.admin-nav button.active { background: #2b456e; }
+.button-dark { background: #243c64; }
+.button-dark:hover { background: #345582; }
+.section-kicker, .eyebrow { color: #ad6248; }
+.hero-copy > p, .story-copy > p, .visit-info > p { font-size: 1.08rem; line-height: 1.75; }
+.nav-links, .login-link, .admin-link { font-size: 1rem; }
+.button { font-size: 1rem; min-height: 46px; }
+.category-tabs button, .menu-search { font-size: .95rem; }
+.dish-info h3 { font-size: 1.05rem; }
+.dish-info p { font-size: .9rem; line-height: 1.6; }
+.order-strip b { font-size: .95rem; }
+.order-strip small, .hero-notes span, .menu-heading > p, .menu-bottom, .drawer-item b, .drawer-item strong, .bill-line, .payment-options b, .order-customer > b, .order-controls label, .manage-details b, .settings-panel form > label, .auth-card form label { font-size: .95rem; }
+.order-strip small, .dish-info p, .drawer-item small, .drawer-note, .payment-options small, .order-customer > span, .manage-details span, .settings-panel form > label small { font-size: .85rem; }
+.open-pill { font-size: .85rem; }
+.icon-button { min-width: 44px; min-height: 44px; }
+.hero-table-select { min-height: 52px; }
+.hero-table-select label, .hero-table-select select { font-size: .85rem; }
+.admin-topbar h1 { font-size: clamp(1.6rem, 2.3vw, 2.1rem); }
+.stat-card small, .panel-heading select, .status, .order-time, .order-expand, .order-items, .payment-status, .price-edit, .available-toggle, .admin-footer, .admin-nav button { font-size: .9rem; }
+.panel-heading h2 { font-size: 1.45rem; }
+.order-card { padding: 18px; }
+.order-controls select, .settings-panel input, .auth-card input { min-height: 44px; font-size: 1rem; }
+.manage-details b, .order-customer > b { font-size: 1rem; }
+.settings-note { font-size: .95rem; line-height: 1.6; }
+@media (max-width: 900px) {
+  .hero-wrap { padding: 34px 24px; }
+  .hero-copy h1 { font-size: clamp(2.7rem, 8vw, 4rem); }
+  .hero-visual { min-height: 320px; }
+}
+@media (max-width: 650px) {
+  .topbar { height: auto; min-height: 72px; padding: 10px 14px; gap: 8px; }
+  .top-actions { gap: 8px; }
+  .admin-link { font-size: .82rem; padding: 8px 10px; min-height: 42px; }
+  .login-link { font-size: .88rem; }
+  .hero-wrap { padding: 28px 16px; }
+  .hero-copy h1 { font-size: clamp(2.65rem, 12vw, 3.5rem); }
+  .hero-copy > p, .story-copy > p, .visit-info > p { font-size: 1rem; }
+  .menu-section { padding: 54px 16px; }
+  .dish-photo { height: clamp(135px, 42vw, 200px); }
+  .dish-info h3 { font-size: .92rem; line-height: 1.35; }
+  .dish-info p { font-size: .82rem; }
+  .category-tabs button { min-height: 40px; font-size: .85rem; }
+  .menu-search { width: 100%; min-height: 44px; }
+  .order-strip { gap: 18px; }
+  .order-strip > div { min-width: 180px; }
+  .side-drawer { padding: 20px 16px; }
+  .drawer-header h2 { font-size: 2rem; }
+  .order-customer { align-items: flex-start; flex-direction: column; }
+  .order-customer > strong { margin-left: 0; }
+  .admin-main { padding: 18px 12px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-card { padding: 15px; }
+  .orders-panel, .manager-panel { padding: 15px 12px; }
+  .order-controls { flex-direction: column; }
+  .order-controls select { width: 100%; }
+  .available-toggle, .price-edit { font-size: .8rem; }
+  .footer { gap: 12px; }
+}

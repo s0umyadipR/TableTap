@@ -1,0 +1,58 @@
+.add-menu-button {
+  font-size: 9px;
+  padding: 10px 13px;
+}
+.add-menu-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: #f7f9f5;
+  border: 1px solid #e5ebe3;
+  padding: 17px;
+  margin-bottom: 18px;
+}
+.add-menu-form label {
+  display: grid;
+  gap: 6px;
+  color: #617265;
+  font-size: 8px;
+}
+.add-menu-form input:not([type="checkbox"]) {
+  width: 100%;
+  border: 1px solid #dce4da;
+  padding: 9px;
+  background: #fff;
+  font-size: 9px;
+  color: #274735;
+  outline: none;
+}
+.add-menu-form input:focus {
+  border-color: #82997a;
+}
+.add-menu-form .add-description {
+  grid-column: span 2;
+}
+.add-menu-form .add-veg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.add-menu-form .add-veg input {
+  accent-color: #59805c;
+}
+.add-menu-form > button {
+  justify-self: end;
+  padding: 10px 15px;
+  font-size: 9px;
+}
+@media (max-width: 650px) {
+  .add-menu-form {
+    grid-template-columns: 1fr;
+  }
+  .add-menu-form .add-description {
+    grid-column: span 1;
+  }
+  .add-menu-form > button {
+    justify-self: stretch;
+  }
+}
