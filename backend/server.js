@@ -700,6 +700,8 @@ async function initializeDatabase() {
     await client.query(await readFile(schemaUrl, 'utf8'));
     const seedUrl = new URL('./db/seed.sql', import.meta.url);
     await client.query(await readFile(seedUrl, 'utf8'));
+    const kolkataMenuUrl = new URL('./db/kolkata-menu.sql', import.meta.url);
+    await client.query(await readFile(kolkataMenuUrl, 'utf8'));
     const { ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
     if (!ADMIN_EMAIL || !ADMIN_PASSWORD || ADMIN_PASSWORD.length < 12) throw new Error('Set ADMIN_EMAIL and a strong ADMIN_PASSWORD (12+ characters) in the Vercel project environment variables.');
     const email = ADMIN_EMAIL.trim().toLowerCase();

@@ -14,11 +14,11 @@ ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('customer', 'a
 
 CREATE TABLE IF NOT EXISTS restaurant_settings (
   id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
-  restaurant_name TEXT NOT NULL DEFAULT 'The Green Table',
+  restaurant_name TEXT NOT NULL DEFAULT 'PARADISE',
   tax_rate NUMERIC(5,2) NOT NULL DEFAULT 5 CHECK (tax_rate >= 0 AND tax_rate <= 100),
   table_count INTEGER NOT NULL DEFAULT 24 CHECK (table_count BETWEEN 1 AND 200),
   upi_id TEXT NOT NULL DEFAULT 'your-restaurant@upi',
-  upi_name TEXT NOT NULL DEFAULT 'The Green Table',
+  upi_name TEXT NOT NULL DEFAULT 's0umyadip',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

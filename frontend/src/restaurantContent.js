@@ -1,16 +1,17 @@
 export const restaurantContent = {
   // Edit this file to customize the restaurant website without changing its components.
-  restaurantName: "PARADISE RESTAURANT",
+  restaurantName: "PARADISE",
   logoUrl: "", // Optional direct image URL or /local-logo.png in frontend/public.
-  logoAlt: "PARADISE RESTAURANT LOGO",
+  logoAlt: "PARADISE LOGO",
   brandTagline: "NEIGHBOURHOOD RESTAURANT",
   heroTitle: "Settle in.",
   heroTitleAccent: "We’ll take it from here.",
   heroEyebrow: "GOOD FOOD, GOOD RESTAURANT",
   heroDescription:
     "Thoughtful plates, easy ordering, and more time around the table. Browse our menu and order right from your seat.",
-  heroPhoto: "photo-1414235077428-338989a2e8c0",
-  storyPhoto: "photo-1556911220-bff31c812dba",
+  heroPhoto: "photo-1517248135467-4c7edcad34c4",
+  heroPhotoAlt: "A warmly lit restaurant dining room",
+  storyPhoto: "photo-1577219491135-ce391730fb2c",
   storyPhotoAlt: "Chef preparing a fresh meal",
   storyDescription:
     "We believe the best meals are the ones that bring people together. So we made ordering the easy part: pull up a chair, take your time with the menu, and we’ll get cooking.",
@@ -19,7 +20,7 @@ export const restaurantContent = {
   openingHours: "Everyday · 10:00 AM – 10:00 PM",
   phone: "+91 9876543210",
   address: "GOBARDANGA STATION ROAD (NORTH 24 PGS)",
-  visitPhoto: "photo-1517248135467-4c7edcad34c4",
+  visitPhoto: "photo-1414235077428-338989a2e8c0",
   visitPhotoAlt: "The restaurant interior",
   visitStamp: "COME HUNGRY ✳ LEAVE HAPPY",
   // Footer copy and links are kept here so each restaurant can customize them.
@@ -34,8 +35,8 @@ export const restaurantContent = {
   footerFacebookUrl: "#",
   footerTwitterLabel: "Twitter",
   footerTwitterUrl: "#",
-  footerCopyrightLabel: "© {year} {restaurantName}",
-  footerCreditLabel: "Powered by TableTap",
+  footerCopyrightLabel: "© {2026} {s0umyadip}",
+  footerCreditLabel: "Powered by TableTap (s0umyadip)",
   footerAdminLabel: "Admin login",
   footerStaffLabel: "Staff login",
   footerKitchenLabel: "Kitchen display",

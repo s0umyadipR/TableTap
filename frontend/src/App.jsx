@@ -843,7 +843,7 @@ export default function App() {
           <div className="hero-visual">
             <img
               src={img(restaurantContent.heroPhoto, 1400)}
-              alt="A warm restaurant table set for dinner"
+              alt={restaurantContent.heroPhotoAlt}
             />
             <div className="hero-caption">
               <span className="caption-icon">
