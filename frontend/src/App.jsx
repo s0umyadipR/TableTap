@@ -17,6 +17,7 @@ import {
   Flame,
   Leaf,
   LogOut,
+  MapPin,
   Menu as MenuIcon,
   Minus,
   Plus,
@@ -937,28 +938,6 @@ export default function App() {
                   />
                   <span className="dish-category">{item.category}</span>
                   <span className={`veg-mark ${item.is_veg ? "" : "nonveg"}`} />
-                  {cart[item.id] ? (
-                    <div className="quantity-control">
-                      <button
-                        onClick={() => add(item.id, -1)}
-                        aria-label="Remove one"
-                      >
-                        <Minus size={15} />
-                      </button>
-                      <b>{cart[item.id]}</b>
-                      <button onClick={() => add(item.id)} aria-label="Add one">
-                        <Plus size={15} />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      className="add-dish"
-                      onClick={() => add(item.id)}
-                      aria-label={`Add ${item.name}`}
-                    >
-                      <Plus size={18} />
-                    </button>
-                  )}
                 </div>
                 <div className="dish-info">
                   <div>
@@ -966,6 +945,23 @@ export default function App() {
                     <span>{money(item.price)}</span>
                   </div>
                   <p>{item.description}</p>
+                  <div className="dish-order-control">
+                    {cart[item.id] ? (
+                      <div className="quantity-control">
+                        <button onClick={() => add(item.id, -1)} aria-label={`Remove one ${item.name}`}>
+                          <Minus size={15} />
+                        </button>
+                        <b>{cart[item.id]}</b>
+                        <button onClick={() => add(item.id)} aria-label={`Add one ${item.name}`}>
+                          <Plus size={15} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button className="add-dish" onClick={() => add(item.id)} aria-label={`Add ${item.name}`}>
+                        Order Now <ArrowRight size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </article>
             ))}
@@ -1058,13 +1054,35 @@ export default function App() {
         </section>
       </main>
       <footer className="footer">
-        <Brand small name={settings.restaurant_name} />
-        <span>{restaurantContent.footerMessage}</span>
-        <span>© {new Date().getFullYear()} {settings.restaurant_name} · Powered by TableTap</span>
-        <div className="footer-login-links">
-          <button className="admin-link footer-admin-link" onClick={() => { setLoginRole("admin"); setMode("admin"); setAuthOpen(true); history.pushState({}, "", "/admin"); }}>Admin login <ArrowRight size={14} /></button>
-          <button className="admin-link footer-admin-link" onClick={() => { setLoginRole("staff"); setMode("admin"); setAuthOpen(true); history.pushState({}, "", "/admin"); }}>Staff login <ArrowRight size={14} /></button>
-          <button className="admin-link footer-admin-link" onClick={() => { setMode("kitchen"); history.pushState({}, "", "/kitchen"); }}>Kitchen display <ChefHat size={14} /></button>
+        <div className="footer-content">
+          <div className="footer-main">
+            <div className="footer-intro">
+              <div className="section-kicker">{restaurantContent.brandTagline}</div>
+              <h2>{restaurantContent.footerHeadline}</h2>
+              <p>{restaurantContent.footerMessage}</p>
+              <button className="footer-reserve" onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}>
+                {restaurantContent.footerReservationLabel} <ArrowRight size={16} />
+              </button>
+            </div>
+            <div className="footer-contact">
+              <div><MapPin size={19} /><span><b>{restaurantContent.footerAddressLabel}</b><small>{restaurantContent.address}</small></span></div>
+              <div><Smartphone size={19} /><span><b>{restaurantContent.footerPhoneLabel}</b><small>{restaurantContent.phone}</small></span></div>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <Brand small name={settings.restaurant_name} />
+            <div className="footer-social-links">
+              <a href={restaurantContent.footerInstagramUrl} aria-label={restaurantContent.footerInstagramLabel}>{restaurantContent.footerInstagramLabel}</a>
+              <a href={restaurantContent.footerFacebookUrl} aria-label={restaurantContent.footerFacebookLabel}>{restaurantContent.footerFacebookLabel}</a>
+              <a href={restaurantContent.footerTwitterUrl} aria-label={restaurantContent.footerTwitterLabel}>{restaurantContent.footerTwitterLabel}</a>
+            </div>
+            <span>{restaurantContent.footerCopyrightLabel.replace("{year}", String(new Date().getFullYear())).replace("{restaurantName}", settings.restaurant_name)} · {restaurantContent.footerCreditLabel}</span>
+            <div className="footer-login-links">
+              <button className="admin-link footer-admin-link" onClick={() => { setLoginRole("admin"); setMode("admin"); setAuthOpen(true); history.pushState({}, "", "/admin"); }}>{restaurantContent.footerAdminLabel} <ArrowRight size={14} /></button>
+              <button className="admin-link footer-admin-link" onClick={() => { setLoginRole("staff"); setMode("admin"); setAuthOpen(true); history.pushState({}, "", "/admin"); }}>{restaurantContent.footerStaffLabel} <ArrowRight size={14} /></button>
+              <button className="admin-link footer-admin-link" onClick={() => { setMode("kitchen"); history.pushState({}, "", "/kitchen"); }}>{restaurantContent.footerKitchenLabel} <ChefHat size={14} /></button>
+            </div>
+          </div>
         </div>
       </footer>
       {cartItems.length > 0 && (

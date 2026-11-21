@@ -1,0 +1,305 @@
+/* Responsive adaptation of the restaurant reference: graphite, ivory and brass. */
+:root {
+  --ref-bg: #1e1e1d;
+  --ref-surface: #282826;
+  --ref-surface-raised: #30302d;
+  --ref-gold: #f4ce70;
+  --ref-gold-strong: #f6c22f;
+  --ref-ivory: #eee9dd;
+  --ref-copy: #d2d0c8;
+  --ref-muted: #a5a39b;
+  --ref-line: #48463e;
+  --ref-danger: #ee8b78;
+  color-scheme: dark;
+  color: var(--ref-ivory);
+  background: var(--ref-bg);
+  font-family: Inter, "DM Sans", sans-serif;
+}
+
+html, body { background: var(--ref-bg); color: var(--ref-ivory); }
+body { min-width: 320px; }
+button, input, select, textarea { font-family: Inter, "DM Sans", sans-serif; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--ref-gold); outline-offset: 3px; }
+
+.customer-app {
+  overflow: clip;
+  color: var(--ref-ivory);
+  background: var(--ref-bg);
+}
+.topbar {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  height: 78px;
+  padding-inline: max(calc((100vw - 1280px) / 2), 5vw);
+  color: var(--ref-ivory);
+  background: #1e1e1ded;
+  border-color: #ffffff12;
+  backdrop-filter: blur(18px);
+}
+.customer-app .topbar .brand { color: var(--ref-ivory); font: 700 23px "Cormorant SC", Georgia, serif; letter-spacing: .035em; }
+.customer-app .topbar .brand-mark { color: var(--ref-gold); background: #302d24; border: 1px solid #665836; border-radius: 50%; }
+.customer-app .topbar .brand small { color: var(--ref-muted); font: 600 9px Inter, sans-serif; letter-spacing: .18em; }
+.nav-links { gap: clamp(18px, 3vw, 42px); color: var(--ref-copy); font-size: 13px; }
+.nav-links a:hover, .login-link:hover, .text-link:hover { color: var(--ref-gold); }
+.top-actions { gap: 12px; }
+.open-pill, .live-chip { color: var(--ref-copy); background: #ffffff0b; border: 1px solid #ffffff17; font-size: 12px; }
+.icon-button, .order-login-trigger { color: var(--ref-gold); border: 1px solid #ffffff21; background: #ffffff08; }
+.icon-button:hover, .order-login-trigger:hover { color: #1e1e1d; background: var(--ref-gold); }
+.bag-order-badge { border-color: var(--ref-bg); background: var(--ref-gold-strong); color: #211d13; }
+
+.hero-wrap {
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  max-width: none;
+  min-height: min(760px, calc(100svh - 78px));
+  padding: clamp(80px, 12vw, 160px) max(calc((100vw - 1280px) / 2), 8vw);
+  background: #191918;
+}
+.hero-visual { position: absolute; z-index: -2; inset: 0; height: 100%; }
+.hero-visual::after {
+  position: absolute; inset: 0; content: "";
+  background: linear-gradient(90deg, #171716f2 0%, #171716d9 40%, #17171675 74%, #17171675), linear-gradient(0deg, #171716aa, transparent 44%);
+}
+.hero-visual > img { width: 100%; height: 100%; object-fit: cover; opacity: .64; filter: saturate(.73); }
+.hero-copy { width: min(780px, 100%); padding: 0; animation: ref-rise .8s cubic-bezier(.2,.7,.2,1) both; }
+.eyebrow, .section-kicker { color: var(--ref-gold); font-size: 12px; letter-spacing: .22em; }
+.hero-copy h1, .menu-heading h2, .story-copy h2, .visit-info h2, .footer-intro h2 {
+  color: var(--ref-ivory);
+  font: 500 clamp(62px, 8.4vw, 118px)/.91 "Cormorant Garamond", Georgia, serif;
+  letter-spacing: -.035em;
+}
+.hero-copy h1 { max-width: 900px; margin: 27px 0 22px; }
+.hero-copy h1 em, .menu-heading h2 em, .story-copy h2 em, .visit-info h2 em { color: var(--ref-gold); }
+.hero-copy > p, .story-copy > p, .visit-info > p { color: var(--ref-copy); font-size: clamp(15px, 1.4vw, 18px); line-height: 1.8; max-width: 590px; }
+.hero-table-select { max-width: 480px; margin-top: 30px; padding: 15px 18px; color: #201e19; background: var(--ref-gold); border: 1px solid #ffe08e; box-shadow: 0 15px 48px #0005; }
+.hero-table-select label { color: #41371f; font-size: 11px; letter-spacing: .14em; }
+.hero-table-select select { min-width: 190px; color: #201e19; font-size: 14px; font-weight: 700; }
+.hero-table-select option { color: #201e19; }
+.hero-buttons { gap: 24px; }
+.hero-buttons > span { color: #d1cec2; font-size: 12px; }
+.avatars { background: #3a3325; color: var(--ref-gold); }
+.hero-notes { max-width: 560px; border-color: #ffffff2b; }
+.hero-notes span { color: #d0cfc8; font-size: 12px; }
+.hero-notes svg { color: var(--ref-gold); }
+.hero-caption, .photo-tag, .hero-index { display: none; }
+.button { min-height: 48px; border-radius: 2px; font-size: 13px; letter-spacing: .025em; }
+.button-dark { color: #201d15; background: var(--ref-gold); border: 1px solid var(--ref-gold); box-shadow: 0 8px 25px #0004; }
+.button-dark:hover { color: #171613; background: #ffdc85; }
+.button-light { color: #211e17; background: var(--ref-gold); }
+.button-outline { color: var(--ref-gold); background: transparent; border-color: #8d7847; }
+.button-outline:hover { color: #1e1e1d; background: var(--ref-gold); }
+
+.order-strip { flex-wrap: wrap; gap: clamp(25px, 6vw, 90px); justify-content: center; padding: 25px 5vw; color: var(--ref-copy); background: #262624; border-color: #ffffff12; }
+.order-strip b { color: var(--ref-ivory); font-size: 13px; }
+.order-strip small { color: var(--ref-muted); font-size: 11px; }
+.strip-icon { color: var(--ref-gold); background: #f4ce7010; border-color: #f4ce7040; }
+.strip-spark { color: var(--ref-gold); }
+
+.menu-section { max-width: 1320px; padding: clamp(72px, 9vw, 128px) 28px; }
+.menu-heading { align-items: end; margin-bottom: 48px; }
+.menu-heading h2, .story-copy h2, .visit-info h2 { margin-top: 20px; font-size: clamp(49px, 6vw, 78px); }
+.menu-heading > p { max-width: 380px; color: var(--ref-muted); font-size: 15px; }
+.menu-tools { gap: 20px; border-color: var(--ref-line); }
+.category-tabs { gap: 8px; }
+.category-tabs button { padding: 10px 16px; color: var(--ref-copy); border: 1px solid #ffffff1a; border-radius: 2px; font-size: 12px; }
+.category-tabs button:hover { color: var(--ref-gold); border-color: #f4ce7066; }
+.category-tabs button.active, .category-tabs button[aria-pressed="true"] { color: #211e17; background: var(--ref-gold); border-color: var(--ref-gold); box-shadow: none; }
+.menu-search { width: min(280px, 100%); color: var(--ref-ivory); border-color: var(--ref-line); font-size: 13px; }
+.menu-search::placeholder { color: #89877f; }
+.menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 24px; }
+.dish-card { overflow: hidden; color: var(--ref-ivory); background: var(--ref-surface); border: 1px solid #ffffff12; border-radius: 3px; box-shadow: 0 14px 38px #0002; }
+.dish-card:hover { transform: translateY(-4px); border-color: #d3ae5970; box-shadow: 0 22px 45px #0004; }
+.dish-photo { height: clamp(190px, 20vw, 275px); background: #292824; }
+.dish-photo > img { transition: transform .65s cubic-bezier(.2,.7,.2,1); }
+.dish-category { color: #2a251b; background: var(--ref-gold); border-radius: 1px; font-size: 11px; }
+.veg-mark { border-color: #477c50; background: #77b77d; }
+.veg-mark.nonveg { border-color: #af4c39; background: #e17a63; }
+.dish-info { padding: 20px 21px 22px; }
+.dish-info > div:first-child { gap: 14px; }
+.dish-info h3 { color: var(--ref-ivory); font: 600 22px/1.12 "Cormorant Garamond", Georgia, serif; letter-spacing: 0; }
+.dish-info > div > span { color: var(--ref-gold); font-size: 16px; }
+.dish-info p { min-height: 44px; color: var(--ref-muted); font-size: 13px; line-height: 1.65; }
+.dish-order-control { display: flex; justify-content: flex-start; margin-top: 18px; }
+.dish-info button.add-dish, .quantity-control { min-height: 42px; padding: 0 14px; color: #211e17; background: var(--ref-gold); border: 1px solid var(--ref-gold); border-radius: 2px; box-shadow: none; font-size: 12px; }
+.dish-info button.add-dish:hover { transform: translateY(-1px); color: #211e17; background: #ffdd8c; }
+.quantity-control { display: flex; align-items: center; gap: 12px; }
+.dish-info .quantity-control button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; color: #211e17; background: transparent; border: 0; box-shadow: none; }
+.menu-bottom { gap: 20px; color: var(--ref-muted); border-color: var(--ref-line); font-size: 12px; }
+.menu-bottom > span:last-child { color: #b9a36e; }
+.empty-menu { color: var(--ref-muted); }
+
+.story-section { background: #262624; }
+.story-image { min-height: 530px; }
+.story-image > img, .visit-photo > img { filter: saturate(.78) brightness(.83); }
+.story-stamp { color: #221f18; background: var(--ref-gold); }
+.story-copy { position: relative; padding: clamp(50px, 7vw, 100px) clamp(30px, 7vw, 105px); }
+.story-copy > p, .visit-info > p { color: var(--ref-copy); font-size: 15px; }
+.story-copy blockquote { color: var(--ref-ivory); font: italic 500 24px/1.35 "Cormorant Garamond", Georgia, serif; }
+.story-copy > small { color: var(--ref-gold); letter-spacing: .14em; }
+.quote-mark { color: var(--ref-gold); }
+.text-link { color: var(--ref-gold); font-size: 13px; }
+.visit-section { gap: clamp(40px, 8vw, 120px); padding: clamp(72px, 9vw, 128px) max(calc((100vw - 1200px) / 2), 6vw); background: #1e1e1d; }
+.visit-info { color: var(--ref-copy); }
+.visit-details { display: grid; gap: 15px; margin: 26px 0; }
+.visit-details span { color: var(--ref-copy); font-size: 13px; }
+.visit-details svg { color: var(--ref-gold); }
+.visit-photo { min-height: 420px; }
+.visit-photo > div { color: #211e17; background: var(--ref-gold); }
+
+.footer { position: relative; display: block; padding: 0; color: var(--ref-copy); background: #181817; border-top: 1px solid #ffffff15; }
+.footer-content { max-width: 1320px; margin: auto; padding: 0 30px; }
+.footer-main { display: grid; grid-template-columns: 1.1fr .9fr; align-items: center; gap: 50px; min-height: 420px; padding: 75px 0; }
+.footer-intro { max-width: 690px; }
+.footer-intro h2 { max-width: 700px; margin: 19px 0 12px; color: var(--ref-gold); font-size: clamp(43px, 5vw, 68px); line-height: 1.02; }
+.footer-intro p { max-width: 550px; color: var(--ref-muted); font-size: 15px; line-height: 1.7; }
+.footer-reserve { display: inline-flex; align-items: center; gap: 14px; min-height: 50px; margin-top: 14px; padding: 0 22px; color: #211e17; background: var(--ref-gold-strong); border: 1px solid var(--ref-gold-strong); font: 600 15px "Cormorant SC", Georgia, serif; }
+.footer-reserve:hover { transform: translateY(-2px); background: #ffdb7c; }
+.footer-contact { display: grid; gap: 24px; }
+.footer-contact > div { display: flex; align-items: flex-start; gap: 16px; }
+.footer-contact svg { flex: 0 0 auto; color: var(--ref-gold); }
+.footer-contact span { display: grid; gap: 7px; }
+.footer-contact b { color: var(--ref-gold); font: 600 17px "Cormorant SC", Georgia, serif; }
+.footer-contact small { color: var(--ref-copy); font-size: 14px; line-height: 1.6; }
+.footer-bottom { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 19px 32px; padding: 24px 0 27px; border-top: 1px solid #ffffff1a; }
+.footer-bottom .brand { color: var(--ref-ivory); font-family: "Cormorant SC", Georgia, serif; }
+.footer-bottom .brand-mark { color: var(--ref-gold); background: #302d24; border: 1px solid #665836; }
+.footer-social-links { display: flex; justify-content: center; gap: 28px; }
+.footer-social-links a { color: var(--ref-copy); text-decoration: underline; text-decoration-color: #d8b95c70; text-underline-offset: 5px; font: 600 15px "Cormorant SC", Georgia, serif; }
+.footer-social-links a:hover { color: var(--ref-gold); }
+.footer-bottom > span { color: var(--ref-muted); font-size: 11px; }
+.footer-login-links { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.footer-admin-link { color: var(--ref-copy) !important; border-color: #ffffff30 !important; background: transparent !important; font-size: 11px !important; }
+.footer-admin-link:hover { color: var(--ref-gold) !important; border-color: var(--ref-gold) !important; background: #f4ce700d !important; }
+
+/* Drawers, checkout, tracking, and auth keep their existing behavior, with readable contrast. */
+.overlay, .drawer-overlay { background: #090909c9; backdrop-filter: blur(5px); }
+.side-drawer, .auth-card, .success-modal, .new-order-modal, .manual-order-modal, .tracking-panel, .bag-active-orders {
+  color: var(--ref-ivory); background: var(--ref-surface); border: 1px solid #ffffff1b; box-shadow: 0 28px 80px #0009;
+}
+.side-drawer h2, .auth-card h2, .success-modal h2, .new-order-modal h2 { color: var(--ref-ivory); }
+.side-drawer p, .auth-card p, .side-drawer small { color: var(--ref-muted); }
+.side-drawer input, .side-drawer select, .side-drawer textarea, .auth-card input, .manual-order-modal input, .manual-order-modal select, .manual-order-modal textarea {
+  min-height: 46px; color: var(--ref-ivory); background: #1e1e1d; border: 1px solid var(--ref-line); border-radius: 2px;
+}
+.side-drawer input::placeholder, .auth-card input::placeholder { color: #85837c; }
+.tracking-panel, .bag-active-orders { background: #242421; }
+.tracking-panel .status, .status { border: 1px solid #f4ce7030; }
+.floating-cart { color: #211e17; background: var(--ref-gold); box-shadow: 0 12px 38px #0008; }
+.floating-cart span, .floating-cart b { color: #211e17; }
+.toast { color: var(--ref-ivory); background: #292822; border: 1px solid #f4ce7050; }
+
+/* Admin and kitchen share the same reference palette; their layouts and permissions remain unchanged. */
+.admin-app, .kitchen-display, .kitchen-login-screen { min-height: 100vh; color: var(--ref-ivory); background: var(--ref-bg); }
+.admin-sidebar { color: var(--ref-ivory); background: #191918; border-color: #ffffff15; }
+.admin-sidebar .brand { color: var(--ref-ivory); font-family: "Cormorant SC", Georgia, serif; }
+.admin-sidebar .brand small, .admin-sidebar small { color: var(--ref-muted); }
+.admin-nav button { color: var(--ref-copy); }
+.admin-nav button:hover { color: var(--ref-gold); background: #ffffff0a; }
+.admin-nav button.active { color: #211e17; background: var(--ref-gold); box-shadow: none; }
+.admin-main { color: var(--ref-ivory); background: var(--ref-bg); }
+.admin-topbar { border-color: var(--ref-line); }
+.admin-topbar h1, .panel-heading h2, .admin-main h2, .admin-main h3 { color: var(--ref-ivory); }
+.admin-topbar p, .admin-main p, .admin-main small, .quiet-label, .admin-footer { color: var(--ref-muted); }
+.stats-grid .stat-card, .orders-panel, .manager-panel, .floor-map-panel, .order-card, .kitchen-ticket, .settings-panel, .table-card, .archive-panel {
+  color: var(--ref-copy); background: var(--ref-surface); border-color: #ffffff17; box-shadow: 0 10px 28px #0002;
+}
+.stat-card b, .order-card strong, .manage-details b, .kitchen-ticket b, .floor-table b { color: var(--ref-ivory); }
+.stat-icon, .admin-avatar { color: var(--ref-gold); background: #f4ce7014; }
+.admin-link, .admin-user button, .order-controls button, .admin-main button, .admin-main select, .admin-main input, .admin-main textarea, .kitchen-display button, .kitchen-display select, .kitchen-login-screen input {
+  color: var(--ref-copy); background-color: #282826; border-color: var(--ref-line);
+}
+.admin-main input::placeholder { color: #89877f; }
+.admin-main button:hover, .kitchen-display button:hover { border-color: #b99a54; }
+.admin-main .button-dark, .admin-main button.active, .admin-nav .active { color: #211e17; background: var(--ref-gold); border-color: var(--ref-gold); }
+.admin-main .floor-table.occupied, .floor-table.occupied { color: #f0a18e; background: #542f28; border-color: #8d5141; }
+.admin-main .floor-table.free, .floor-table.free { color: #b5d2ae; background: #2c3e31; border-color: #4f7659; }
+.kitchen-header, .kitchen-topbar { color: var(--ref-ivory); background: #191918; border-color: #ffffff17; }
+.kitchen-display h1, .kitchen-display h2, .kitchen-login-screen h1 { color: var(--ref-ivory); }
+.kitchen-archive-ticket { opacity: .82; }
+
+@keyframes ref-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1000px) {
+  .hero-wrap { min-height: 660px; padding-inline: 7vw; }
+  .hero-copy h1 { font-size: clamp(60px, 10vw, 94px); }
+  .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .story-image { min-height: 430px; }
+  .footer-main { gap: 32px; }
+  .footer-bottom { grid-template-columns: 1fr 1fr; }
+  .footer-social-links { justify-content: flex-end; }
+  .footer-bottom > span { grid-column: 1; grid-row: 2; }
+  .footer-login-links { grid-column: 2; grid-row: 2; }
+}
+@media (max-width: 700px) {
+  .topbar { height: 66px; padding-inline: 15px; gap: 8px; }
+  .customer-app .topbar .brand { max-width: 58vw; overflow: hidden; font-size: 19px; text-overflow: ellipsis; }
+  .customer-app .topbar .brand small { font-size: 7px; letter-spacing: .12em; }
+  .top-actions { gap: 7px; }
+  .open-pill { display: none; }
+  .hero-wrap { min-height: min(760px, calc(100svh - 66px)); padding: 88px 22px 60px; }
+  .hero-visual::after { background: linear-gradient(90deg, #171716ed, #171716b5 70%, #1717167a), linear-gradient(0deg, #171716b8, transparent 55%); }
+  .hero-visual > img { object-position: 58% center; }
+  .hero-copy h1 { margin: 21px 0 17px; font-size: clamp(57px, 15vw, 82px); }
+  .hero-copy > p { font-size: 15px; }
+  .hero-table-select { display: grid; grid-template-columns: 1fr; gap: 8px; max-width: none; padding: 13px 14px; }
+  .hero-table-select select { width: 100%; min-height: 38px; text-align: left; }
+  .hero-buttons { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .hero-buttons > span { max-width: 240px; font-size: 11px; }
+  .hero-notes { gap: 13px; margin-top: 25px; }
+  .hero-notes span { font-size: 10px; }
+  .order-strip { display: grid; grid-template-columns: 1fr; gap: 17px; padding: 22px; }
+  .order-strip > div { min-width: 0; }
+  .menu-section { padding: 70px 18px 60px; }
+  .menu-heading { align-items: flex-start; gap: 14px; }
+  .menu-heading h2, .story-copy h2, .visit-info h2 { font-size: clamp(48px, 13vw, 66px); }
+  .menu-heading > p { font-size: 13px; }
+  .menu-tools { align-items: stretch; }
+  .category-tabs { flex-wrap: nowrap; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: thin; }
+  .category-tabs button { flex: 0 0 auto; }
+  .menu-search { width: 100%; min-height: 44px; }
+  .menu-grid { grid-template-columns: 1fr; gap: 17px; }
+  .dish-photo { height: clamp(210px, 65vw, 330px); }
+  .dish-info { padding: 17px; }
+  .dish-info h3 { font-size: 24px; }
+  .dish-info p { min-height: 0; font-size: 13px; }
+  .dish-order-control { margin-top: 14px; }
+  .menu-bottom { align-items: flex-start; flex-direction: column; font-size: 11px; }
+  .menu-bottom > span:last-child { text-align: left; }
+  .story-section, .visit-section { grid-template-columns: 1fr; }
+  .story-image { min-height: 300px; height: 68vw; max-height: 420px; }
+  .story-copy { padding: 54px 22px 42px; }
+  .story-copy > p, .visit-info > p { font-size: 14px; }
+  .visit-section { padding: 68px 22px; gap: 28px; }
+  .visit-photo { min-height: 280px; height: 68vw; }
+  .footer-content { padding-inline: 20px; }
+  .footer-main { grid-template-columns: 1fr; gap: 34px; min-height: 0; padding: 58px 0 40px; }
+  .footer-intro h2 { font-size: clamp(43px, 12vw, 58px); }
+  .footer-intro p { font-size: 14px; }
+  .footer-bottom { grid-template-columns: 1fr; justify-items: start; gap: 16px; padding: 21px 0 95px; }
+  .footer-social-links { justify-content: flex-start; gap: 22px; }
+  .footer-bottom > span, .footer-login-links { grid-column: auto; grid-row: auto; }
+  .footer-bottom > span { line-height: 1.6; }
+  .footer-login-links { justify-content: flex-start; }
+  .footer-admin-link { min-height: 40px; }
+  .floating-cart { width: calc(100% - 24px); min-height: 58px; bottom: max(12px, env(safe-area-inset-bottom)); }
+  .manual-order-fields { grid-template-columns: 1fr; }
+  .admin-sidebar { position: sticky; top: 0; z-index: 15; }
+  .admin-nav { max-width: calc(100vw - 135px); overflow-x: auto; scrollbar-width: none; }
+  .admin-main { min-height: calc(100svh - 60px); }
+  .kitchen-display { padding-inline: 14px; }
+}
+@media (max-width: 420px) {
+  .customer-app .topbar .brand { font-size: 17px; }
+  .topbar .brand-mark { width: 28px; height: 28px; }
+  .top-actions { gap: 4px; }
+  .hero-wrap { padding-inline: 18px; }
+  .hero-buttons .button { min-height: 45px; padding-inline: 13px; }
+  .footer-login-links { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .footer-login-links button:last-child { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
