@@ -1,15 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["bom1"],
   "services": {
     "frontend": {
       "root": "frontend/",
       "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
     },
     "backend": {
-  "root": "backend/",
-  "entrypoint": "server.js",
-  "regions": ["bom1"]
-}
+      "root": "backend/",
+      "entrypoint": "server.js"
+    }
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": { "service": "backend" } },
