@@ -15,14 +15,25 @@ const app = express();
 const port = Number(process.env.PORT || 4000);
 const jwtSecret = process.env.JWT_SECRET || '';
 const allowedOrigins = (process.env.FRONTEND_URL || ''). split(',').map(value => value.trim());
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined });
+// Standard node-postgres pool: supports URLs from any PostgreSQL provider.
+const serverless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Prefer SSL options in DATABASE_URL (for example sslmode=require).
+  // DATABASE_SSL remains for existing deployments that use the legacy flag.
+  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
+  max: Number(process.env.DATABASE_POOL_MAX || (serverless ? 5 : 10)),
+  connectionTimeoutMillis: Number(process.env.DATABASE_CONNECTION_TIMEOUT_MS || 10000),
+  idleTimeoutMillis: Number(process.env.DATABASE_IDLE_TIMEOUT_MS || 30000),
+  keepAlive: true,
+});
 let databaseReady;
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(async (_req, _res, next) => {
   try {
-    if (!process.env.DATABASE_URL || jwtSecret.length < 24) throw new Error('Set DATABASE_URL and a JWT_SECRET with at least 24 characters in the Vercel project environment variables.');
+    if (!process.env.DATABASE_URL || jwtSecret.length < 24) throw new Error('Set DATABASE_URL to a reachable PostgreSQL connection URL and set a JWT_SECRET with at least 24 characters.');
     databaseReady ??= initializeDatabase().catch(error => { databaseReady = null; throw error; });
     await databaseReady;
     next();
@@ -75,7 +86,7 @@ const orderSelect = `SELECT o.id, o.user_id, COALESCE(o.customer_name, u.name, '
     COALESCE(o.customer_email, u.email) AS customer_email,
     COALESCE(o.customer_phone, u.phone) AS customer_phone,
     o.razorpay_order_id, o.table_number, o.status, o.payment_method, o.payment_status,
-    o.subtotal, o.tax_rate, o.tax_amount, o.total, o.created_at, o.updated_at,
+    o.subtotal, o.tax_rate, o.tax_amount, o.total, o.reservation_id, o.reservation_charge, o.created_at, o.updated_at,
     o.kitchen_sent_at, o.prep_minutes, o.prep_started_at
   FROM orders o LEFT JOIN users u ON u.id = o.user_id`;
 
@@ -85,6 +96,20 @@ async function getOrder(orderId) {
   const order = orderResult.rows[0];
   const items = await pool.query('SELECT id, menu_item_id, name, price, quantity, line_total FROM order_items WHERE order_id = $1 ORDER BY id', [orderId]);
   return { ...order, items: items.rows };
+}
+
+async function insertOrderItems(client, orderId, items) {
+  await client.query(`INSERT INTO order_items(order_id, menu_item_id, name, price, quantity, line_total)
+    SELECT $1, menu_item_id, name, price, quantity, line_total
+    FROM UNNEST($2::bigint[], $3::text[], $4::numeric[], $5::integer[], $6::numeric[])
+      AS order_item(menu_item_id, name, price, quantity, line_total)`, [
+    orderId,
+    items.map(item => item.id),
+    items.map(item => item.name),
+    items.map(item => item.price),
+    items.map(item => item.quantity),
+    items.map(item => item.line.toFixed(2)),
+  ]);
 }
 
 function kitchenTicket(order) {
@@ -256,11 +281,88 @@ app.get('/api/public/menu', async (_req, res, next) => {
   try {
     const [menu, settings, occupiedTables] = await Promise.all([
       pool.query('SELECT id, name, description, price, category, is_veg, is_available, image_url FROM menu_items WHERE is_available = TRUE ORDER BY category, name'),
-      pool.query('SELECT restaurant_name, tax_rate, table_count, upi_id, upi_name FROM restaurant_settings WHERE id = 1'),
-      pool.query("SELECT DISTINCT table_number FROM orders WHERE status NOT IN ('all_done','cancelled') ORDER BY table_number")
+      pool.query('SELECT restaurant_name, tax_rate, reservation_charge, table_count, upi_id, upi_name FROM restaurant_settings WHERE id = 1'),
+      pool.query(`SELECT table_number FROM orders WHERE status NOT IN ('all_done','cancelled')
+        UNION SELECT table_number FROM reservations WHERE status='accepted'
+          AND reservation_at <= NOW() + INTERVAL '2 hours'
+          AND reservation_at + INTERVAL '2 hours' > NOW()
+        ORDER BY table_number`)
     ]);
     res.json({ menu: menu.rows, settings: settings.rows[0] || null, occupied_tables: occupiedTables.rows.map(row => Number(row.table_number)) });
   } catch (error) { next(error); }
+});
+
+app.post('/api/reservations', async (req, res, next) => {
+  const name = String(req.body?.customer_name || '').trim();
+  const phone = String(req.body?.customer_phone || '').replace(/[\s()-]/g, '');
+  const partySize = Number(req.body?.party_size);
+  const reservationAt = new Date(req.body?.reservation_at);
+  if (!name || name.length > 120 || !/^\+?[0-9]{7,15}$/.test(phone)) return res.status(400).json({ error: 'Enter your name and a valid phone number.' });
+  if (!Number.isInteger(partySize) || partySize < 1 || partySize > 20) return res.status(400).json({ error: 'Choose a group size from 1 to 20.' });
+  if (!Number.isFinite(reservationAt.getTime()) || reservationAt.getTime() <= Date.now() || reservationAt.getTime() > Date.now() + 90 * 24 * 60 * 60 * 1000) return res.status(400).json({ error: 'Choose a future date and time within the next 90 days.' });
+  try {
+    const result = await pool.query(`INSERT INTO reservations(customer_name,customer_phone,party_size,reservation_at,booking_charge)
+      SELECT $1,$2,$3,$4,reservation_charge FROM restaurant_settings WHERE id=1
+      RETURNING id,customer_name,customer_phone,party_size,reservation_at,booking_charge,table_number,status,created_at`, [name, phone, partySize, reservationAt.toISOString()]);
+    if (!result.rowCount) return res.status(503).json({ error: 'Restaurant settings are not ready. Please try again.' });
+    res.status(201).json({ reservation: result.rows[0] });
+  } catch (error) { next(error); }
+});
+
+app.get('/api/reservations/:id', async (req, res, next) => {
+  const phone = String(req.query?.phone || '').replace(/[\s()-]/g, '');
+  if (!/^[0-9a-f-]{36}$/i.test(req.params.id) || !/^\+?[0-9]{7,15}$/.test(phone)) return res.status(404).json({ error: 'Reservation not found.' });
+  try {
+    const result = await pool.query(`SELECT r.id,r.customer_name,r.party_size,r.reservation_at,r.booking_charge,r.table_number,r.status,r.created_at,r.updated_at,o.id AS linked_order_id
+      FROM reservations r LEFT JOIN orders o ON o.reservation_id=r.id WHERE r.id=$1 AND r.customer_phone=$2`, [req.params.id, phone]);
+    if (!result.rowCount) return res.status(404).json({ error: 'Reservation not found.' });
+    res.json({ reservation: result.rows[0] });
+  } catch (error) { next(error); }
+});
+
+app.get('/api/admin/reservations', requireAuth, requireStaff, async (_req, res, next) => {
+  try {
+    const result = await pool.query(`SELECT r.id,r.customer_name,r.customer_phone,r.party_size,r.reservation_at,r.booking_charge,r.table_number,r.status,r.created_at,r.updated_at,
+        o.id AS linked_order_id,o.payment_status AS order_payment_status
+      FROM reservations r LEFT JOIN orders o ON o.reservation_id=r.id
+      ORDER BY CASE r.status WHEN 'pending' THEN 0 WHEN 'accepted' THEN 1 ELSE 2 END, r.reservation_at ASC LIMIT 250`);
+    res.json({ reservations: result.rows });
+  } catch (error) { next(error); }
+});
+
+app.patch('/api/admin/reservations/:id', requireAuth, requireStaff, async (req, res, next) => {
+  const { status } = req.body || {};
+  const tableNumber = Number(req.body?.table_number);
+  if (!['accepted', 'rejected'].includes(status)) return res.status(400).json({ error: 'Choose accept or reject for this reservation.' });
+  if (status === 'accepted' && (!Number.isInteger(tableNumber) || tableNumber < 1)) return res.status(400).json({ error: 'Choose a table number before accepting.' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const booking = await client.query('SELECT * FROM reservations WHERE id=$1 FOR UPDATE', [req.params.id]);
+    if (!booking.rowCount) throw Object.assign(new Error('Reservation not found.'), { status: 404 });
+    if (booking.rows[0].status !== 'pending') throw Object.assign(new Error('This reservation has already been reviewed.'), { status: 409 });
+    let assignedTable = null;
+    if (status === 'accepted') {
+      const settings = await client.query('SELECT table_count FROM restaurant_settings WHERE id=1');
+      if (!settings.rowCount || tableNumber > Number(settings.rows[0].table_count)) throw Object.assign(new Error('Choose a table in this restaurant.'), { status: 400 });
+      await client.query('SELECT pg_advisory_xact_lock(3918,$1)', [tableNumber]);
+      const conflict = await client.query(`SELECT 1 FROM reservations
+        WHERE table_number=$1 AND status='accepted' AND id<>$2
+          AND reservation_at < $3::timestamptz + INTERVAL '2 hours'
+          AND reservation_at + INTERVAL '2 hours' > $3::timestamptz
+        UNION ALL
+        SELECT 1 FROM orders WHERE table_number=$1 AND status NOT IN ('all_done','cancelled')
+          AND $3::timestamptz <= NOW() + INTERVAL '2 hours'
+        LIMIT 1`, [tableNumber, req.params.id, booking.rows[0].reservation_at]);
+      if (conflict.rowCount) throw Object.assign(new Error('That table already has a reservation in this time slot.'), { status: 409 });
+      assignedTable = tableNumber;
+    }
+    const updated = await client.query(`UPDATE reservations SET status=$1,table_number=$2,updated_at=NOW()
+      WHERE id=$3 RETURNING id,customer_name,customer_phone,party_size,reservation_at,booking_charge,table_number,status,created_at,updated_at`, [status, assignedTable, req.params.id]);
+    await client.query('COMMIT');
+    res.json({ reservation: updated.rows[0] });
+  } catch (error) { await client.query('ROLLBACK'); next(error); }
+  finally { client.release(); }
 });
 
 app.post('/api/auth/customer/login', async (req, res, next) => {
@@ -373,7 +475,7 @@ app.post('/api/orders', async (req, res, next) => {
       providerOrderId = await createRazorpayOrder(orderId, total, { name, email, phone });
       await client.query('UPDATE orders SET razorpay_order_id=$1 WHERE id=$2', [providerOrderId, orderId]);
     }
-    for (const item of orderItems) await client.query('INSERT INTO order_items(order_id, menu_item_id, name, price, quantity, line_total) VALUES ($1,$2,$3,$4,$5,$6)', [orderId, item.id, item.name, item.price, item.quantity, item.line.toFixed(2)]);
+    await insertOrderItems(client, orderId, orderItems);
     await client.query('COMMIT');
     const order = await getOrder(orderId);
     setOrderSessionCookie(res, orderId, token);
@@ -520,6 +622,7 @@ app.post('/api/admin/orders/manual', requireAuth, requireStaff, async (req, res,
   const name = String(req.body?.customer?.name || '').trim();
   const phone = String(req.body?.customer?.phone || '').replace(/[\s()-]/g, '');
   const paymentStatus = req.body?.payment_status === 'paid' ? 'paid' : 'pending';
+  const reservationId = String(req.body?.reservation_id || '').trim() || null;
   const items = req.body?.items;
   if (!Number.isInteger(tableNumber) || tableNumber < 1) return res.status(400).json({ error: 'Choose a valid table number.' });
   if (!name || name.length > 120 || !/^\+?[0-9]{7,15}$/.test(phone)) return res.status(400).json({ error: 'Enter the customer name and a valid phone number.' });
@@ -531,6 +634,14 @@ app.post('/api/admin/orders/manual', requireAuth, requireStaff, async (req, res,
     const settings = settingsResult.rows[0] || { tax_rate: 0, table_count: 24 };
     if (tableNumber > Number(settings.table_count)) throw Object.assign(new Error('That table number is not available.'), { status: 400 });
     await client.query('SELECT pg_advisory_xact_lock(3917, $1)', [tableNumber]);
+    let reservationCharge = 0;
+    if (reservationId) {
+      const reservation = await client.query('SELECT status,table_number,booking_charge FROM reservations WHERE id=$1 FOR UPDATE', [reservationId]);
+      if (!reservation.rowCount || reservation.rows[0].status !== 'accepted' || Number(reservation.rows[0].table_number) !== tableNumber) throw Object.assign(new Error('This accepted reservation is not assigned to the selected table.'), { status: 409 });
+      const existingOrder = await client.query('SELECT 1 FROM orders WHERE reservation_id=$1 LIMIT 1', [reservationId]);
+      if (existingOrder.rowCount) throw Object.assign(new Error('A table order is already attached to this reservation.'), { status: 409 });
+      reservationCharge = Number(reservation.rows[0].booking_charge);
+    }
     const quantities = new Map();
     for (const item of items) {
       const id = Number(item.menu_item_id);
@@ -543,12 +654,12 @@ app.post('/api/admin/orders/manual', requireAuth, requireStaff, async (req, res,
     const orderItems = menu.rows.map(item => ({ ...item, quantity: quantities.get(Number(item.id)), line: Number(item.price) * quantities.get(Number(item.id)) }));
     const subtotal = orderItems.reduce((sum, item) => sum + item.line, 0);
     const taxRate = Number(settings.tax_rate);
-    const taxAmount = Math.round(subtotal * taxRate) / 100;
-    const total = Math.round((subtotal + taxAmount) * 100) / 100;
-    const created = await client.query(`INSERT INTO orders(customer_name,customer_phone,table_number,status,payment_method,payment_status,subtotal,tax_rate,tax_amount,total,kitchen_sent_at)
-      VALUES($1,$2,$3,'confirmed','counter',$4,$5,$6,$7,$8,NOW()) RETURNING id`, [name, phone, tableNumber, paymentStatus, subtotal.toFixed(2), taxRate, taxAmount.toFixed(2), total.toFixed(2)]);
+    const taxAmount = Math.round((subtotal + reservationCharge) * taxRate) / 100;
+    const total = Math.round((subtotal + reservationCharge + taxAmount) * 100) / 100;
+    const created = await client.query(`INSERT INTO orders(customer_name,customer_phone,table_number,status,payment_method,payment_status,subtotal,tax_rate,tax_amount,total,kitchen_sent_at,reservation_id,reservation_charge)
+      VALUES($1,$2,$3,'confirmed','counter',$4,$5,$6,$7,$8,NOW(),$9,$10) RETURNING id`, [name, phone, tableNumber, paymentStatus, subtotal.toFixed(2), taxRate, taxAmount.toFixed(2), total.toFixed(2), reservationId, reservationCharge.toFixed(2)]);
     const orderId = created.rows[0].id;
-    for (const item of orderItems) await client.query('INSERT INTO order_items(order_id,menu_item_id,name,price,quantity,line_total) VALUES($1,$2,$3,$4,$5,$6)', [orderId, item.id, item.name, item.price, item.quantity, item.line.toFixed(2)]);
+    await insertOrderItems(client, orderId, orderItems);
     await client.query('COMMIT');
     res.status(201).json({ order: await getOrder(orderId) });
   } catch (error) { await client.query('ROLLBACK'); next(error); }
@@ -678,20 +789,21 @@ app.post('/api/admin/menu', requireAuth, requireMenuManager, async (req, res, ne
 });
 
 app.patch('/api/admin/settings', requireAuth, requireStaff, async (req, res, next) => {
-  const { restaurant_name, tax_rate, table_count, upi_id, upi_name } = req.body || {};
+  const { restaurant_name, tax_rate, reservation_charge, table_count, upi_id, upi_name } = req.body || {};
   const rate = Number(tax_rate);
+  const bookingCharge = Number(reservation_charge);
   const tables = Number(table_count);
-  if (!restaurant_name?.trim() || !Number.isFinite(rate) || rate < 0 || rate > 100 || !Number.isInteger(tables) || tables < 1 || tables > 200 || !upi_id?.trim() || !upi_name?.trim()) return res.status(400).json({ error: 'Check the restaurant name, tax, table count and UPI details.' });
+  if (!restaurant_name?.trim() || !Number.isFinite(rate) || rate < 0 || rate > 100 || !Number.isFinite(bookingCharge) || bookingCharge < 0 || bookingCharge > 100000 || !Number.isInteger(tables) || tables < 1 || tables > 200 || !upi_id?.trim() || !upi_name?.trim()) return res.status(400).json({ error: 'Check the restaurant name, tax, booking charge, table count and UPI details.' });
   try {
-    const result = await pool.query(`INSERT INTO restaurant_settings(id,restaurant_name,tax_rate,table_count,upi_id,upi_name) VALUES(1,$1,$2,$3,$4,$5)
-      ON CONFLICT(id) DO UPDATE SET restaurant_name=EXCLUDED.restaurant_name,tax_rate=EXCLUDED.tax_rate,table_count=EXCLUDED.table_count,upi_id=EXCLUDED.upi_id,upi_name=EXCLUDED.upi_name,updated_at=NOW()
-      RETURNING restaurant_name,tax_rate,table_count,upi_id,upi_name`, [restaurant_name.trim(), rate, tables, upi_id.trim(), upi_name.trim()]);
+    const result = await pool.query(`INSERT INTO restaurant_settings(id,restaurant_name,tax_rate,reservation_charge,table_count,upi_id,upi_name) VALUES(1,$1,$2,$3,$4,$5,$6)
+      ON CONFLICT(id) DO UPDATE SET restaurant_name=EXCLUDED.restaurant_name,tax_rate=EXCLUDED.tax_rate,reservation_charge=EXCLUDED.reservation_charge,table_count=EXCLUDED.table_count,upi_id=EXCLUDED.upi_id,upi_name=EXCLUDED.upi_name,updated_at=NOW()
+      RETURNING restaurant_name,tax_rate,reservation_charge,table_count,upi_id,upi_name`, [restaurant_name.trim(), rate, bookingCharge, tables, upi_id.trim(), upi_name.trim()]);
     res.json({ settings: result.rows[0] });
   } catch (error) { next(error); }
 });
 
 async function initializeDatabase() {
-  if (!process.env.DATABASE_URL || jwtSecret.length < 24) throw new Error('Set DATABASE_URL and a JWT_SECRET with at least 24 characters in the Vercel project environment variables.');
+  if (!process.env.DATABASE_URL || jwtSecret.length < 24) throw new Error('Set DATABASE_URL to a reachable PostgreSQL connection URL and set a JWT_SECRET with at least 24 characters.');
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -700,8 +812,6 @@ async function initializeDatabase() {
     await client.query(await readFile(schemaUrl, 'utf8'));
     const seedUrl = new URL('./db/seed.sql', import.meta.url);
     await client.query(await readFile(seedUrl, 'utf8'));
-    const kolkataMenuUrl = new URL('./db/kolkata-menu.sql', import.meta.url);
-    await client.query(await readFile(kolkataMenuUrl, 'utf8'));
     const { ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
     if (!ADMIN_EMAIL || !ADMIN_PASSWORD || ADMIN_PASSWORD.length < 12) throw new Error('Set ADMIN_EMAIL and a strong ADMIN_PASSWORD (12+ characters) in the Vercel project environment variables.');
     const email = ADMIN_EMAIL.trim().toLowerCase();

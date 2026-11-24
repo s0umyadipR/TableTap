@@ -16,11 +16,15 @@ CREATE TABLE IF NOT EXISTS restaurant_settings (
   id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
   restaurant_name TEXT NOT NULL DEFAULT 'PARADISE',
   tax_rate NUMERIC(5,2) NOT NULL DEFAULT 5 CHECK (tax_rate >= 0 AND tax_rate <= 100),
+  reservation_charge NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (reservation_charge >= 0),
   table_count INTEGER NOT NULL DEFAULT 24 CHECK (table_count BETWEEN 1 AND 200),
   upi_id TEXT NOT NULL DEFAULT 'your-restaurant@upi',
   upi_name TEXT NOT NULL DEFAULT 's0umyadip',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Expand existing restaurant settings without deleting any restaurant data.
+ALTER TABLE restaurant_settings ADD COLUMN IF NOT EXISTS reservation_charge NUMERIC(10,2) NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS menu_items (
   id BIGSERIAL PRIMARY KEY,
@@ -122,3 +126,24 @@ CREATE TABLE IF NOT EXISTS order_reviews (
   rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Customer requests remain unassigned until restaurant staff approve them.
+CREATE TABLE IF NOT EXISTS reservations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  party_size INTEGER NOT NULL CHECK (party_size BETWEEN 1 AND 20),
+  reservation_at TIMESTAMPTZ NOT NULL,
+  booking_charge NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (booking_charge >= 0),
+  table_number INTEGER CHECK (table_number IS NULL OR table_number > 0),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'cancelled')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_reservations_queue ON reservations(status, reservation_at);
+CREATE INDEX IF NOT EXISTS idx_reservations_table_slot ON reservations(table_number, reservation_at) WHERE status = 'accepted';
+
+-- Orders created from an accepted booking include its fee in the bill total.
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS reservation_id UUID REFERENCES reservations(id);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS reservation_charge NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (reservation_charge >= 0);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_reservation_id ON orders(reservation_id) WHERE reservation_id IS NOT NULL;

@@ -8,6 +8,7 @@ import {
   BadgeCheck,
   Bell,
   BellRing,
+  CalendarDays,
   Check,
   ChefHat,
   ChevronDown,
@@ -36,7 +37,8 @@ import {
   X,
 } from "lucide-react";
 
-const API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+// Local Vite requests stay relative and pass through vite.config.js's /api proxy.
+const API = import.meta.env.DEV ? "" : (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 const ORDER_IDS_KEY = "tt-order-ids";
 const FINAL_ORDER_STATUSES = new Set(["all_done", "served", "delivered", "cancelled"]);
 const orderStatusLabel = (status) => ({
@@ -62,103 +64,103 @@ const img = (source, width = 720) =>
 const fallbackMenu = [
   {
     id: 1,
-    name: "Burrata & heirloom tomato",
-    description: "Creamy burrata, ripe tomato, basil oil, toasted sourdough.",
-    price: 385,
-    category: "Small plates",
+    name: "Kolkata alur chop",
+    description: "Crisp potato croquettes with roasted cumin, green chilli and kasundi.",
+    price: 145,
+    category: "Kolkata snacks",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1512621776951-a57141f2eefd"),
+    image_url: "https://images.unsplash.com/photo-1625944525533-473f1a3d54e7?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 2,
-    name: "Truffle parmesan fries",
-    description: "Crisp shoestring fries, shaved parmesan, truffle aioli.",
-    price: 245,
-    category: "Small plates",
+    name: "Beguni with kasundi",
+    description: "Thin aubergine fritters in a light gram-flour batter, served with kasundi.",
+    price: 155,
+    category: "Kolkata snacks",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1573080496219-bb080dd4f877"),
+    image_url: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 3,
-    name: "Wild mushroom toast",
-    description: "Sourdough, whipped ricotta, thyme, wild mushrooms.",
-    price: 325,
-    category: "Small plates",
+    name: "Kolkata fish fry",
+    description: "Bhetki fillet in a crisp crumb coat with mustard kasundi and salad.",
+    price: 285,
+    category: "Kolkata snacks",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1525351484163-7529414344d8"),
+    image_url: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 4,
-    name: "Sunday roast chicken",
-    description: "Herb roasted chicken, lemon jus, buttered greens.",
-    price: 565,
-    category: "From the kitchen",
+    name: "Chicken cutlet",
+    description: "Juicy spiced chicken in a golden crumb coat, with kasundi.",
+    price: 265,
+    category: "Kolkata snacks",
     is_veg: false,
     is_available: true,
-    image_url: img("photo-1532550907401-a500c9a57435"),
+    image_url: "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 5,
-    name: "Creamy tomato rigatoni",
-    description: "Slow-cooked tomato, cream, basil, aged parmesan.",
-    price: 425,
-    category: "From the kitchen",
+    name: "Kosha mangsho",
+    description: "Slow-braised Bengali mutton with caramelised onion and warm spices.",
+    price: 545,
+    category: "Bengali mains",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1473093295043-cdd812d0e601"),
+    image_url: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 6,
-    name: "Crispy tofu grain bowl",
-    description: "Ginger sesame tofu, brown rice, crunchy greens.",
-    price: 395,
-    category: "From the kitchen",
+    name: "Shorshe paneer",
+    description: "Paneer in a mellow mustard gravy with steamed gobindobhog rice.",
+    price: 315,
+    category: "Bengali mains",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1511690743698-d9d85f2fbf38"),
+    image_url: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 7,
-    name: "Pistachio tiramisu",
-    description: "Espresso-soaked layers, mascarpone, toasted pistachio.",
-    price: 275,
-    category: "Something sweet",
+    name: "Mishti doi",
+    description: "Traditional slow-set sweet yoghurt, chilled in a clay-pot style cup.",
+    price: 95,
+    category: "Bengali sweets",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1571877227200-a0d98ea607e9"),
+    image_url: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 8,
-    name: "Basque cheesecake",
-    description: "Caramelised top, soft centre, seasonal berry compote.",
-    price: 295,
-    category: "Something sweet",
+    name: "Nolen gur sandesh",
+    description: "Soft fresh-chhena sandesh scented with winter date-palm jaggery.",
+    price: 115,
+    category: "Bengali sweets",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1533134242443-d4fd215305ad"),
+    image_url: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 9,
-    name: "House iced latte",
-    description: "Double espresso, oat or dairy milk, a little sweetness.",
-    price: 195,
-    category: "Coffee & drinks",
+    name: "Darjeeling lemon tea",
+    description: "Fragrant Darjeeling tea with fresh lemon, served hot or iced.",
+    price: 110,
+    category: "Tea & drinks",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1461023058943-07fcbe16d735"),
+    image_url: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=900&q=85",
   },
   {
     id: 10,
-    name: "Citrus garden spritz",
-    description: "Orange, rosemary, sparkling water, served over ice.",
-    price: 185,
-    category: "Coffee & drinks",
+    name: "Gondhoraj ghol",
+    description: "Cooling yoghurt drink blended with aromatic gondhoraj lime.",
+    price: 125,
+    category: "Tea & drinks",
     is_veg: true,
     is_available: true,
-    image_url: img("photo-1513558161293-cdaf765edfd7"),
+    image_url: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=900&q=85",
   },
 ];
 
@@ -193,6 +195,7 @@ export default function App() {
   const [settings, setSettings] = useState({
     restaurant_name: restaurantContent.restaurantName,
     tax_rate: 5,
+    reservation_charge: 0,
     table_count: 24,
     upi_id: UPI_ID,
     upi_name: UPI_NAME,
@@ -202,6 +205,7 @@ export default function App() {
   const [authOpen, setAuthOpen] = useState(location.pathname.startsWith("/admin"));
   const [loginRole, setLoginRole] = useState("admin");
   const [adminTab, setAdminTab] = useState("Orders");
+  const [reservationOpen, setReservationOpen] = useState(false);
   const [orders, setOrders] = useState([]);
   const [waiterAlerts, setWaiterAlerts] = useState([]);
   const [toast, setToast] = useState("");
@@ -680,10 +684,11 @@ export default function App() {
     if (!order || order.payment_status !== "paid") return;
     const safe = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[character]);
     const rows = (order.items || []).map((item) => `<tr><td>${Number(item.quantity)} × ${safe(item.name)}</td><td>${money(item.line_total)}</td></tr>`).join("");
+    const bookingFee = Number(order.reservation_charge || 0) > 0 ? `<tr><td>Table booking charge</td><td>${money(order.reservation_charge)}</td></tr>` : "";
     const bill = window.open("", "_blank", "width=720,height=800");
     if (!bill) { notify("Allow pop-ups to print your bill."); return; }
     bill.opener = null;
-    bill.document.write(`<!doctype html><html><head><title>Bill ${order.id.slice(0,8)}</title><style>body{font:16px Arial,sans-serif;max-width:640px;margin:50px auto;color:#172744}h1{font-size:28px}table{width:100%;border-collapse:collapse;margin:24px 0}td{padding:12px 0;border-bottom:1px solid #ddd}td:last-child{text-align:right}.total{font-size:20px;font-weight:bold}.muted{color:#64748b}</style></head><body><h1>${safe(settings.restaurant_name)}</h1><p class="muted">Order bill · Table ${Number(order.table_number)}</p><p>Order ID: ${safe(order.id)}</p><p>Customer: ${safe(order.customer_name)}</p><p>${safe(order.customer_email || order.customer_phone || "")}</p><p>${new Date(order.created_at).toLocaleString()}</p><table>${rows}<tr><td>Tax (${order.tax_rate}%)</td><td>${money(order.tax_amount)}</td></tr><tr class="total"><td>Total · PAID</td><td>${money(order.total)}</td></tr></table><p class="muted">Thank you for dining with ${safe(settings.restaurant_name)}.</p><script>window.onload=()=>window.print()</script></body></html>`);
+    bill.document.write(`<!doctype html><html><head><title>Bill ${order.id.slice(0,8)}</title><style>body{font:16px Arial,sans-serif;max-width:640px;margin:50px auto;color:#172744}h1{font-size:28px}table{width:100%;border-collapse:collapse;margin:24px 0}td{padding:12px 0;border-bottom:1px solid #ddd}td:last-child{text-align:right}.total{font-size:20px;font-weight:bold}.muted{color:#64748b}</style></head><body><h1>${safe(settings.restaurant_name)}</h1><p class="muted">Order bill · Table ${Number(order.table_number)}</p><p>Order ID: ${safe(order.id)}</p><p>Customer: ${safe(order.customer_name)}</p><p>${safe(order.customer_email || order.customer_phone || "")}</p><p>${new Date(order.created_at).toLocaleString()}</p><table>${rows}${bookingFee}<tr><td>Tax (${order.tax_rate}%)</td><td>${money(order.tax_amount)}</td></tr><tr class="total"><td>Total · PAID</td><td>${money(order.total)}</td></tr></table><p class="muted">Thank you for dining with ${safe(settings.restaurant_name)}.</p><script>window.onload=()=>window.print()</script></body></html>`);
     bill.document.close();
   };
   const updateOrder = async (id, changes) => {
@@ -721,6 +726,10 @@ export default function App() {
     });
     setMenu((current) => [...current, data.item]);
     notify("Menu item added");
+  };
+  const createReservation = async (reservation) => {
+    const data = await request("/api/reservations", { method: "POST", body: JSON.stringify(reservation) });
+    return data.reservation;
   };
   const updateSettings = async (changes) => {
     try {
@@ -761,6 +770,7 @@ export default function App() {
           acknowledgeWaiterAlert,
           sendToKitchen,
           createManualOrder,
+          request,
           createStaff: async (staff) => {
             const result = await request("/api/admin/staff", { method: "POST", body: JSON.stringify(staff) });
             notify(`Staff account created for ${result.user.name}`);
@@ -778,6 +788,9 @@ export default function App() {
           <a href="#visit">Visit</a>
         </nav>
         <div className="top-actions">
+          <button className="button button-light reservation-trigger" aria-label="Reserve a table" title="Reserve a table" onClick={() => setReservationOpen(true)}>
+            <CalendarDays size={17} /><span>Reserve a table</span>
+          </button>
           <span className="open-pill">
             <i /> {restaurantContent.openingHours}
           </span>
@@ -958,7 +971,7 @@ export default function App() {
                       </div>
                     ) : (
                       <button className="add-dish" onClick={() => add(item.id)} aria-label={`Add ${item.name}`}>
-                        Order Now <ArrowRight size={16} />
+                        <Plus size={16} />
                       </button>
                     )}
                   </div>
@@ -1060,7 +1073,7 @@ export default function App() {
               <div className="section-kicker">{restaurantContent.brandTagline}</div>
               <h2>{restaurantContent.footerHeadline}</h2>
               <p>{restaurantContent.footerMessage}</p>
-              <button className="footer-reserve" onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}>
+              <button className="footer-reserve" onClick={() => setReservationOpen(true)}>
                 {restaurantContent.footerReservationLabel} <ArrowRight size={16} />
               </button>
             </div>
@@ -1256,6 +1269,7 @@ export default function App() {
           </aside>
         </div>
       )}
+      {reservationOpen && <ReservationModal charge={settings.reservation_charge} onClose={() => setReservationOpen(false)} onSubmit={createReservation} request={request} />}
       {authOpen && (
         <AuthModal
           onClose={() => { setAuthOpen(false); setMode("customer"); if (location.pathname.startsWith("/admin")) history.pushState({}, "", "/"); }}
@@ -1359,16 +1373,17 @@ function PrepCountdown({ minutes, startedAt, status }) {
   return <small className="prep-countdown"><Timer size={14} /> {remaining ? `Kitchen estimate · ${display} remaining` : "Kitchen timer ended · your order is being finished"}</small>;
 }
 
-function ManualOrderModal({ menu, tableCount, taxRate, onClose, onSubmit }) {
-  const [customer, setCustomer] = useState({ name: "", phone: "" });
-  const [table, setTable] = useState("1");
+function ManualOrderModal({ menu, tableCount, taxRate, onClose, onSubmit, reservation = null }) {
+  const [customer, setCustomer] = useState({ name: reservation?.customer_name || "", phone: reservation?.customer_phone || "" });
+  const [table, setTable] = useState(String(reservation?.table_number || "1"));
   const [quantities, setQuantities] = useState({});
   const [paymentStatus, setPaymentStatus] = useState("pending");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const items = menu.filter((item) => item.is_available !== false).filter((item) => quantities[item.id]).map((item) => ({ ...item, quantity: quantities[item.id] }));
   const subtotal = items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
-  const tax = subtotal * Number(taxRate || 0) / 100;
+  const reservationCharge = Number(reservation?.booking_charge || 0);
+  const tax = (subtotal + reservationCharge) * Number(taxRate || 0) / 100;
   const changeQuantity = (id, amount) => setQuantities((current) => {
     const next = { ...current };
     const quantity = (next[id] || 0) + amount;
@@ -1383,6 +1398,7 @@ function ManualOrderModal({ menu, tableCount, taxRate, onClose, onSubmit }) {
       await onSubmit({
         table_number: Number(table),
         customer,
+        reservation_id: reservation?.id || null,
         payment_status: paymentStatus,
         items: items.map((item) => ({ menu_item_id: item.id, quantity: item.quantity })),
       });
@@ -1400,7 +1416,7 @@ function ManualOrderModal({ menu, tableCount, taxRate, onClose, onSubmit }) {
         <div className="manual-order-fields">
           <label>Customer name<input required maxLength={120} autoComplete="name" value={customer.name} onChange={(event) => setCustomer((current) => ({ ...current, name: event.target.value }))} /></label>
           <label>Phone number<input required inputMode="tel" autoComplete="tel" value={customer.phone} onChange={(event) => setCustomer((current) => ({ ...current, phone: event.target.value }))} /></label>
-          <label>Table number<select value={table} onChange={(event) => setTable(event.target.value)}>{Array.from({ length: Number(tableCount) || 24 }, (_, index) => <option value={index + 1} key={index + 1}>Table {index + 1}</option>)}</select></label>
+          <label>Table number<select disabled={Boolean(reservation)} value={table} onChange={(event) => setTable(event.target.value)}>{Array.from({ length: Number(tableCount) || 24 }, (_, index) => <option value={index + 1} key={index + 1}>Table {index + 1}</option>)}</select></label>
           <label>Counter payment<select value={paymentStatus} onChange={(event) => setPaymentStatus(event.target.value)}><option value="pending">Payment due</option><option value="paid">Collected at counter</option></select></label>
         </div>
         <p className="manual-order-hint">Occupied tables are allowed for additional orders. This order is sent to the kitchen when you submit.</p>
@@ -1408,10 +1424,82 @@ function ManualOrderModal({ menu, tableCount, taxRate, onClose, onSubmit }) {
           <span><b>{item.name}</b><small>{money(item.price)}</small></span>
           <div><button type="button" className="icon-button" aria-label={`Remove one ${item.name}`} disabled={!quantities[item.id]} onClick={() => changeQuantity(item.id, -1)}><Minus size={16} /></button><b>{quantities[item.id] || 0}</b><button type="button" className="icon-button" aria-label={`Add one ${item.name}`} onClick={() => changeQuantity(item.id, 1)}><Plus size={16} /></button></div>
         </div>)}</div>
-        <div className="manual-order-total"><span>{items.length} item types · {Number(taxRate || 0)}% tax</span><b>{money(subtotal + tax)}</b></div>
+        {reservationCharge > 0 && <div className="manual-order-total"><span>Reservation booking charge</span><b>{money(reservationCharge)}</b></div>}
+        <div className="manual-order-total"><span>{items.length} item types · {Number(taxRate || 0)}% tax</span><b>{money(subtotal + reservationCharge + tax)}</b></div>
         {error && <p className="form-error" role="alert">{error}</p>}
         <button className="button button-dark full" disabled={busy || !items.length}>{busy ? "Sending order…" : "Send order to kitchen"} <ArrowRight size={16} /></button>
       </form>
+    </section>
+  </div>;
+}
+
+function localDateTimeValue(daysAhead = 1) {
+  const date = new Date();
+  date.setDate(date.getDate() + daysAhead);
+  date.setHours(19, 0, 0, 0);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+function currentLocalDateTimeValue() {
+  const date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000);
+  return date.toISOString().slice(0, 16);
+}
+
+function ReservationModal({ charge = 0, onClose, onSubmit, request }) {
+  const [form, setForm] = useState({ customer_name: "", customer_phone: "", party_size: "2", reservation_at: localDateTimeValue() });
+  const [reservation, setReservation] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (!reservation) return undefined;
+    let active = true;
+    const refresh = () => request(`/api/reservations/${reservation.id}?phone=${encodeURIComponent(form.customer_phone)}`)
+      .then((data) => { if (active) setReservation(data.reservation); })
+      .catch(() => {});
+    const timer = window.setInterval(refresh, 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [reservation?.id, form.customer_phone, request]);
+  const submit = async (event) => {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const created = await onSubmit({
+        ...form,
+        party_size: Number(form.party_size),
+        reservation_at: new Date(form.reservation_at).toISOString(),
+      });
+      setReservation(created);
+    } catch (reason) { setError(reason.message || "We could not request this table. Please try again."); }
+    finally { setBusy(false); }
+  };
+  return <div className="overlay reservation-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <section className="success-modal reservation-modal" role="dialog" aria-modal="true" aria-labelledby="reservation-title">
+      <button className="modal-close" onClick={onClose} aria-label="Close reservation"><X size={18} /></button>
+      <div className="section-kicker">A SEAT, SAVED FOR YOU</div>
+      <h2 id="reservation-title">Reserve <em>a table.</em></h2>
+      {!reservation ? <>
+        <p>Choose when you’re coming. Our team will confirm your table and follow up on your booking.</p>
+        <form onSubmit={submit}>
+          <label>Your name<input required maxLength={120} autoComplete="name" value={form.customer_name} onChange={(event) => setForm({ ...form, customer_name: event.target.value })} /></label>
+          <label>Phone number<input required inputMode="tel" autoComplete="tel" value={form.customer_phone} onChange={(event) => setForm({ ...form, customer_phone: event.target.value })} /></label>
+          <div className="reservation-fields">
+            <label>Guests<select value={form.party_size} onChange={(event) => setForm({ ...form, party_size: event.target.value })}>{Array.from({ length: 20 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1} {index === 0 ? "guest" : "guests"}</option>)}</select></label>
+            <label>Date & time<input required type="datetime-local" min={currentLocalDateTimeValue()} value={form.reservation_at} onChange={(event) => setForm({ ...form, reservation_at: event.target.value })} /></label>
+          </div>
+          <div className="reservation-charge"><span>Booking charge</span><b>{money(charge)}</b><small>{Number(charge) > 0 ? "Added to your table bill when staff take your food order." : "No booking charge set by the restaurant."}</small></div>
+          {error && <p className="form-error" role="alert">{error}</p>}
+          <button className="button button-dark full" disabled={busy}>{busy ? "Sending request…" : "Request this table"} <ArrowRight size={16} /></button>
+        </form>
+      </> : <div className="reservation-receipt" aria-live="polite">
+        <div className={`reservation-state reservation-${reservation.status}`}><CalendarDays size={20} /><b>{reservation.status === "accepted" ? "Reservation confirmed" : reservation.status === "rejected" ? "Please contact the restaurant" : "Waiting for the restaurant"}</b></div>
+        <p>{reservation.customer_name} · {reservation.party_size} {Number(reservation.party_size) === 1 ? "guest" : "guests"}</p>
+        <p>{new Date(reservation.reservation_at).toLocaleString([], { weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" })}</p>
+        {reservation.status === "accepted" && <p className="reservation-assigned-table">Your table is <b>Table {reservation.table_number}</b>.</p>}
+        <div className="reservation-charge"><span>Booking charge</span><b>{money(reservation.booking_charge)}</b><small>{reservation.linked_order_id ? `Added to order #${String(reservation.linked_order_id).slice(0, 8).toUpperCase()}.` : "Settled with your table order at the restaurant."}</small></div>
+        <small>Reservation reference · {String(reservation.id).slice(0, 8).toUpperCase()}</small>
+        <button className="button button-dark full" onClick={onClose}>Done</button>
+      </div>}
     </section>
   </div>;
 }
@@ -1612,6 +1700,7 @@ function AdminApp({
   acknowledgeWaiterAlert,
   sendToKitchen,
   createManualOrder,
+  request,
 }) {
   const isAdmin = user?.role === "admin";
   const [editing, setEditing] = useState(null);
@@ -1620,7 +1709,10 @@ function AdminApp({
   const [searchedOrders, setSearchedOrders] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [manualOrderOpen, setManualOrderOpen] = useState(false);
-  const tabs = ["Orders", "Menu", "Settings"];
+  const [manualReservation, setManualReservation] = useState(null);
+  const [reservations, setReservations] = useState([]);
+  const [reservationAlert, setReservationAlert] = useState(null);
+  const tabs = ["Orders", "Reservations", "Menu", "Settings"];
   const stats = isAdmin ? [
     {
       label: "Orders today",
@@ -1667,6 +1759,33 @@ function AdminApp({
     const poll = window.setInterval(refresh, 2000);
     return () => { active = false; window.clearTimeout(debounce); window.clearInterval(poll); };
   }, [searchTerm, orderSearch, searchOrders, notify]);
+  useEffect(() => {
+    let active = true;
+    let seenIds = null;
+    const refreshReservations = () => request("/api/admin/reservations")
+      .then((data) => {
+        if (!active) return;
+        const latest = data.reservations || [];
+        if (seenIds) {
+          const incoming = latest.find((reservation) => reservation.status === "pending" && !seenIds.has(reservation.id));
+          if (incoming) setReservationAlert(incoming);
+        }
+        seenIds = new Set(latest.map((reservation) => reservation.id));
+        setReservations(latest);
+      })
+      .catch(() => {});
+    refreshReservations();
+    const timer = window.setInterval(refreshReservations, 2000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [request]);
+  const updateReservation = async (id, changes) => {
+    const data = await request(`/api/admin/reservations/${id}`, { method: "PATCH", body: JSON.stringify(changes) });
+    setReservations((current) => current.map((reservation) => reservation.id === id ? { ...reservation, ...data.reservation } : reservation));
+    setReservationAlert((current) => current?.id === id ? null : current);
+    notify(data.reservation.status === "accepted" ? `Reservation assigned to Table ${data.reservation.table_number}` : "Reservation declined");
+    return data.reservation;
+  };
+  const refreshReservationsNow = () => request("/api/admin/reservations").then((data) => setReservations(data.reservations || []));
   const sourceOrders = searchTerm ? searchedOrders || [] : orders;
   const visibleOrders = sourceOrders.filter((order) => {
     const statusMatches = orderFilter === "All"
@@ -1687,13 +1806,14 @@ function AdminApp({
               onClick={() => setAdminTab(tab)}
               key={tab}
             >
-              {[<ReceiptText />, <MenuIcon />, <ShieldCheck />][i]}
+              {[<ReceiptText />, <CalendarDays />, <MenuIcon />, <ShieldCheck />][i]}
               {tab}
               <ArrowRight size={14} />
               {isAdmin && tab === "Orders" &&
                 orders.filter((o) => o.status === "pending").length > 0 && (
                   <b>{orders.filter((o) => o.status === "pending").length}</b>
                 )}
+              {tab === "Reservations" && reservations.filter((reservation) => reservation.status === "pending").length > 0 && <b>{reservations.filter((reservation) => reservation.status === "pending").length}</b>}
             </button>
           ))}
         </nav>
@@ -1719,7 +1839,9 @@ function AdminApp({
             <h1>
               {adminTab === "Orders"
                 ? "Your service, at a glance."
-                : adminTab === "Menu"
+                : adminTab === "Reservations"
+                  ? "A seat, saved for them."
+                  : adminTab === "Menu"
                   ? "A menu made yours."
                   : "The details behind the table."}
             </h1>
@@ -1804,6 +1926,14 @@ function AdminApp({
               )}
             </section>
           </>
+        ) : adminTab === "Reservations" ? (
+          <ReservationManager
+            reservations={reservations}
+            tableCount={settings.table_count}
+            updateReservation={updateReservation}
+            notify={notify}
+            takeOrder={(reservation) => { setManualReservation(reservation); setManualOrderOpen(true); }}
+          />
         ) : adminTab === "Menu" ? (
           <MenuManager
             menu={menu}
@@ -1835,6 +1965,16 @@ function AdminApp({
           </a>
         </footer>
       </main>
+      {reservationAlert && !incoming && !waiterAlerts[0] && <div className="overlay alert-overlay reservation-alert-overlay">
+        <section className="new-order-modal reservation-alert-modal" role="alertdialog" aria-modal="true" aria-labelledby="reservation-alert-title">
+          <button className="modal-close" onClick={() => setReservationAlert(null)} aria-label="Review this reservation later"><X size={18} /></button>
+          <div className="new-order-icon"><CalendarDays size={23} /></div>
+          <div className="section-kicker">NEW TABLE REQUEST</div>
+          <h2 id="reservation-alert-title">A guest is<br /><em>saving a seat.</em></h2>
+          <div className="incoming-summary"><span>{reservationAlert.customer_name} · {reservationAlert.party_size} guests</span><span>{reservationAlert.customer_phone}</span><div><span>{new Date(reservationAlert.reservation_at).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span><b>{money(reservationAlert.booking_charge)}</b></div></div>
+          <div className="alert-actions"><button className="button button-outline full" onClick={() => setReservationAlert(null)}>Review later</button><button className="button button-dark full" onClick={() => { setAdminTab("Reservations"); setReservationAlert(null); }}>Open request <ArrowRight size={16} /></button></div>
+        </section>
+      </div>}
       {incoming && (
         <div className="overlay alert-overlay">
           <div className="new-order-modal">
@@ -1896,9 +2036,53 @@ function AdminApp({
           <button className="button button-dark full" onClick={() => acknowledgeWaiterAlert(waiterAlerts[0].id)}>Acknowledge alert <Check size={16} /></button>
         </section>
       </div>}
-      {manualOrderOpen && <ManualOrderModal menu={menu} tableCount={settings.table_count} taxRate={settings.tax_rate} onClose={() => setManualOrderOpen(false)} onSubmit={createManualOrder} />}
+      {manualOrderOpen && <ManualOrderModal menu={menu} tableCount={settings.table_count} taxRate={settings.tax_rate} reservation={manualReservation} onClose={() => { setManualOrderOpen(false); setManualReservation(null); }} onSubmit={async (details) => { const order = await createManualOrder(details); await refreshReservationsNow(); return order; }} />}
     </div>
   );
+}
+
+function ReservationManager({ reservations, tableCount, updateReservation, notify, takeOrder }) {
+  const [tables, setTables] = useState({});
+  const [busyId, setBusyId] = useState("");
+  const tableIsReserved = (tableNumber, reservation) => {
+    const start = new Date(reservation.reservation_at).getTime();
+    return reservations.some((other) => other.id !== reservation.id && other.status === "accepted"
+      && Number(other.table_number) === tableNumber
+      && new Date(other.reservation_at).getTime() < start + 2 * 60 * 60 * 1000
+      && new Date(other.reservation_at).getTime() + 2 * 60 * 60 * 1000 > start);
+  };
+  const handleDecision = async (reservation, status) => {
+    setBusyId(reservation.id);
+    try {
+      await updateReservation(reservation.id, { status, table_number: Number(tables[reservation.id] || 1) });
+    } catch (error) { notify(error.message); }
+    finally { setBusyId(""); }
+  };
+  return <section className="manager-panel reservation-manager">
+    <div className="panel-heading">
+      <div><div className="section-kicker">TABLE BOOKING DESK</div><h2>Reservations <span>{reservations.filter((reservation) => reservation.status === "pending").length}</span></h2></div>
+      <small>Live requests refresh every two seconds.</small>
+    </div>
+    {!reservations.length ? <div className="admin-empty"><span><CalendarDays size={23} /></span><b>No reservations yet.</b><small>New customer table requests will appear here.</small></div> : <div className="reservation-list">
+      {reservations.map((reservation) => <article className={`reservation-card reservation-card-${reservation.status}`} key={reservation.id}>
+        <div className="reservation-card-head"><div><span className="section-kicker">{reservation.status === "pending" ? "NEEDS REVIEW" : reservation.status.toUpperCase()}</span><h3>{reservation.customer_name}</h3></div><span className={`status reservation-status-${reservation.status}`}>{reservation.status}</span></div>
+        <div className="reservation-details"><span><Smartphone size={15} /> {reservation.customer_phone}</span><span><CalendarDays size={15} /> {new Date(reservation.reservation_at).toLocaleString([], { weekday: "long", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</span><span><Utensils size={15} /> {reservation.party_size} {Number(reservation.party_size) === 1 ? "guest" : "guests"}</span></div>
+        <div className="reservation-fee-row"><span>Booking charge</span><b>{money(reservation.booking_charge)}</b></div>
+        {reservation.status === "pending" ? <div className="reservation-review-actions">
+          <label>Assign table<select value={tables[reservation.id] || String(Array.from({ length: Number(tableCount) || 24 }, (_, index) => index + 1).find((number) => !tableIsReserved(number, reservation)) || 1)} onChange={(event) => setTables((current) => ({ ...current, [reservation.id]: event.target.value }))}>{Array.from({ length: Number(tableCount) || 24 }, (_, index) => {
+            const number = index + 1;
+            const reserved = tableIsReserved(number, reservation);
+            return <option value={number} key={number} disabled={reserved}>Table {number}{reserved ? " · booked for this time" : ""}</option>;
+          })}</select></label>
+          <button className="button button-outline" disabled={busyId === reservation.id} onClick={() => handleDecision(reservation, "rejected")}>Reject</button>
+          <button className="button button-dark" disabled={busyId === reservation.id} onClick={() => handleDecision(reservation, "accepted")}>{busyId === reservation.id ? "Saving…" : "Accept & assign"} <Check size={16} /></button>
+        </div> : reservation.status === "accepted" ? <div className="reservation-accepted-row">
+          <b>Table {reservation.table_number} assigned</b>
+          {reservation.linked_order_id ? <span>Food order #{String(reservation.linked_order_id).slice(0, 8).toUpperCase()} · payment {reservation.order_payment_status}</span> : <button className="button button-dark" onClick={() => takeOrder(reservation)}><Plus size={16} /> Take food order</button>}
+        </div> : null}
+      </article>)}
+    </div>}
+  </section>;
 }
 
 function OrderCard({ order, updateOrder, printBill, sendToKitchen }) {
@@ -1944,6 +2128,7 @@ function OrderCard({ order, updateOrder, printBill, sendToKitchen }) {
               <b>{money(item.price * item.quantity)}</b>
             </div>
           ))}
+          {Number(order.reservation_charge || 0) > 0 && <div><span>Table booking charge</span><b>{money(order.reservation_charge)}</b></div>}
           <div><span>Tax ({order.tax_rate}%)</span><b>{money(order.tax_amount)}</b></div>
           <div className="payment-row">
             <span>
@@ -2200,6 +2385,17 @@ function SettingsManager({ settings, updateSettings, isAdmin, createStaff }) {
             }
           />
           <small>Applied to the order subtotal at checkout.</small>
+        </label>
+        <label>
+          Table booking charge (₹)
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={form.reservation_charge ?? 0}
+            onChange={(e) => setForm({ ...form, reservation_charge: Number(e.target.value) })}
+          />
+          <small>Added to the table bill when staff create a food order from an accepted reservation.</small>
         </label>
         <label>
           Number of tables

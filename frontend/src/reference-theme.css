@@ -122,7 +122,7 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 .menu-search { width: min(280px, 100%); color: var(--ref-ivory); border-color: var(--ref-line); font-size: 13px; }
 .menu-search::placeholder { color: #89877f; }
 .menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 24px; }
-.dish-card { overflow: hidden; color: var(--ref-ivory); background: var(--ref-surface); border: 1px solid #ffffff12; border-radius: 3px; box-shadow: 0 14px 38px #0002; }
+.dish-card { position: relative; overflow: hidden; color: var(--ref-ivory); background: var(--ref-surface); border: 1px solid #ffffff12; border-radius: 3px; box-shadow: 0 14px 38px #0002; }
 .dish-card:hover { transform: translateY(-4px); border-color: #d3ae5970; box-shadow: 0 22px 45px #0004; }
 .dish-photo { height: clamp(190px, 20vw, 275px); background: #292824; }
 .dish-photo > img { transition: transform .65s cubic-bezier(.2,.7,.2,1); }
@@ -197,6 +197,27 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   min-height: 46px; color: var(--ref-ivory); background: #1e1e1d; border: 1px solid var(--ref-line); border-radius: 2px;
 }
 .side-drawer input::placeholder, .auth-card input::placeholder { color: #85837c; }
+.side-drawer .drawer-item b,
+.side-drawer .drawer-item > strong,
+.side-drawer .bill-line b,
+.side-drawer .bill-line.total,
+.side-drawer .bill-line.total b { color: var(--ref-gold); }
+.side-drawer .drawer-item small,
+.side-drawer .bill-line span,
+.side-drawer .drawer-note { color: var(--ref-copy); }
+.side-drawer .table-select label { color: var(--ref-gold); }
+.side-drawer .table-select select { color: var(--ref-ivory); }
+.side-drawer .drawer-bottom > .button-dark {
+  min-height: 58px;
+  margin-top: 8px;
+  color: #1e1b14;
+  background: linear-gradient(110deg, #f6d47e, #f2bd42);
+  border: 1px solid #ffe194;
+  box-shadow: 0 10px 24px #d5a43530;
+  font-size: 15px;
+  font-weight: 800;
+}
+.side-drawer .drawer-bottom > .button-dark:hover { background: #ffdf8b; box-shadow: 0 13px 28px #d5a43545; }
 .tracking-panel, .bag-active-orders { background: #242421; }
 .tracking-panel .status, .status { border: 1px solid #f4ce7030; }
 .floating-cart { color: #211e17; background: var(--ref-gold); box-shadow: 0 12px 38px #0008; }
@@ -313,4 +334,171 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
+/* Contrast pass: keep body copy readable on every dark surface in the app. */
+:root {
+  --ref-copy: #e2dfd5;
+  --ref-muted: #c3c0b7;
+}
+
+.admin-app :where(p, span, small, label, time, li, dt, dd),
+.kitchen-display :where(p, span, small, label, time, li, dt, dd),
+.auth-card :where(p, span, small, label),
+.success-modal :where(p, span, small, label),
+.new-order-modal :where(p, span, small, label),
+.tracking-panel :where(p, span, small, label),
+.bag-active-orders :where(p, span, small, label) {
+  color: var(--ref-copy);
+}
+
+.admin-main :where(p, small, label, time, .quiet-label),
+.admin-sidebar :where(small),
+.admin-footer,
+.kitchen-heading p,
+.kitchen-ticket-id,
+.kitchen-ticket-head,
+.kitchen-top-actions > span {
+  color: var(--ref-muted);
+}
+
+.manual-order-modal .manual-order-fields label { color: var(--ref-ivory); }
+.manual-order-modal .manual-order-fields input,
+.manual-order-modal .manual-order-fields select {
+  color: var(--ref-ivory);
+  background: #1e1e1d;
+  border-color: #68665d;
+}
+.manual-order-modal .manual-order-menu { background: #232321; border-color: #555349; }
+.manual-order-modal .manual-order-item { border-color: #4a4942; }
+.manual-order-modal .manual-order-item > span b,
+.manual-order-modal .manual-order-total b { color: var(--ref-gold); }
+.manual-order-modal .manual-order-item small,
+.manual-order-modal .manual-order-total { color: var(--ref-copy); }
+.manual-order-modal .manual-order-hint { color: #314238; background: #f0f5ee; }
+.dish-info button.add-dish {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.kitchen-display .kitchen-topbar .brand { color: var(--ref-ivory); }
+.kitchen-display .kitchen-topbar .brand small { color: var(--ref-muted); }
+.kitchen-display .kitchen-ticket-head b { color: var(--ref-ivory); }
+.kitchen-display .kitchen-ticket-items > div > span { color: var(--ref-ivory); }
+.kitchen-display .kitchen-ticket-items > div > b { color: var(--ref-gold); }
+.kitchen-display .kitchen-timer-select { color: #34443b; }
+.kitchen-display .kitchen-timer-select select { color: #1e3029; background: #fff; }
+.kitchen-display .kitchen-empty { color: var(--ref-copy); background: var(--ref-surface); border-color: #68665d; }
+.kitchen-display .kitchen-empty b { color: var(--ref-ivory); }
+.kitchen-display .manager-panel,
+.kitchen-display .add-menu-form { color: var(--ref-copy); background: var(--ref-surface); border-color: #555349; }
+.kitchen-display .manage-details b { color: var(--ref-ivory); }
+.kitchen-display .manage-details span { color: var(--ref-muted); }
+.kitchen-display .available-toggle { color: var(--ref-copy); }
+
+.status { color: var(--ref-copy); background: #393832; }
+.status-pending { color: #ffe09a; background: #4a3921; }
+.status-confirmed, .status-preparing { color: #c9dcff; background: #26394c; }
+.status-ready, .status-prepared, .status-served { color: #c4e8c9; background: #263b2c; }
+.status-unavailable, .status-cancelled { color: #ffc1b5; background: #4b2d28; }
+
+.kitchen-login-screen .section-kicker { color: #765718 !important; }
+.kitchen-login-screen h1 { color: #243b35 !important; }
+
+/* Table reservations: customer request form and staff booking desk. */
+.reservation-trigger {
+  min-height: 46px;
+  padding-inline: 15px;
+  color: #211e17;
+  background: var(--ref-gold);
+  border: 1px solid var(--ref-gold);
+  white-space: nowrap;
+}
+.reservation-trigger:hover { background: #ffdf8b; }
+.reservation-overlay { z-index: 78; }
+.reservation-modal {
+  width: min(600px, calc(100vw - 28px));
+  max-height: min(880px, calc(100dvh - 28px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.reservation-modal form { display: grid; gap: 15px; }
+.reservation-modal form > label,
+.reservation-modal .reservation-fields label {
+  display: grid;
+  gap: 7px;
+  color: var(--ref-ivory);
+  font-size: 14px;
+  font-weight: 700;
+}
+.reservation-modal input,
+.reservation-modal select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  color: var(--ref-ivory);
+  background: #1e1e1d;
+  border: 1px solid #68665d;
+  border-radius: 4px;
+}
+.reservation-modal input:focus,
+.reservation-modal select:focus { border-color: var(--ref-gold); }
+.reservation-fields { display: grid; grid-template-columns: .75fr 1.25fr; gap: 12px; }
+.reservation-charge {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  padding: 14px 16px;
+  color: var(--ref-copy);
+  background: #34332f;
+  border: 1px solid #5a5547;
+}
+.reservation-charge b { color: var(--ref-gold); }
+.reservation-charge small { grid-column: 1 / -1; color: var(--ref-muted); line-height: 1.5; }
+.reservation-receipt { display: grid; gap: 12px; }
+.reservation-receipt p { margin: 0; color: var(--ref-copy); }
+.reservation-state { display: flex; align-items: center; gap: 10px; padding: 15px; color: #ffe09a; background: #4a3921; }
+.reservation-accepted { color: #c4e8c9; background: #263b2c; }
+.reservation-rejected { color: #ffc1b5; background: #4b2d28; }
+.reservation-receipt > small { color: var(--ref-muted); }
+.reservation-assigned-table b { color: var(--ref-gold); }
+.reservation-manager { margin-bottom: 24px; }
+.reservation-manager > .panel-heading > small { color: var(--ref-muted); }
+.reservation-list { display: grid; gap: 13px; }
+.reservation-card { padding: 18px; color: var(--ref-copy); background: #292927; border: 1px solid #504e46; border-left: 4px solid #71664e; border-radius: 4px; }
+.reservation-card-pending { border-left-color: var(--ref-gold); }
+.reservation-card-accepted { border-left-color: #78b98a; }
+.reservation-card-rejected { opacity: .82; }
+.reservation-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.reservation-card-head h3 { margin: 6px 0 0; color: var(--ref-ivory); font-size: 21px; }
+.reservation-card-head .section-kicker { color: var(--ref-gold); font-size: 10px; }
+.reservation-details { display: flex; flex-wrap: wrap; gap: 9px 20px; margin: 16px 0 12px; }
+.reservation-details span { display: inline-flex; align-items: center; gap: 7px; color: var(--ref-copy); font-size: 14px; }
+.reservation-details svg { flex: 0 0 auto; color: var(--ref-gold); }
+.reservation-fee-row { display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #4c4a43; color: var(--ref-muted); }
+.reservation-fee-row b { color: var(--ref-gold); }
+.reservation-review-actions { display: grid; grid-template-columns: minmax(130px, 1fr) auto auto; align-items: end; gap: 10px; }
+.reservation-review-actions label { display: grid; gap: 6px; color: var(--ref-copy); font-size: 13px; font-weight: 700; }
+.reservation-review-actions select { min-height: 46px; padding: 8px 10px; color: var(--ref-ivory); background: #1e1e1d; border: 1px solid #68665d; }
+.reservation-review-actions .button,
+.reservation-accepted-row .button { min-height: 46px; }
+.reservation-accepted-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid #4c4a43; }
+.reservation-accepted-row > b { color: #c4e8c9; }
+.reservation-accepted-row > span { color: var(--ref-muted); }
+.reservation-alert-overlay { z-index: 84; }
+
+@media (max-width: 700px) {
+  .reservation-trigger { width: 44px; min-width: 44px; min-height: 44px; padding: 0; justify-content: center; }
+  .reservation-trigger span { display: none; }
+  .reservation-fields { grid-template-columns: 1fr; }
+  .reservation-review-actions { grid-template-columns: 1fr 1fr; }
+  .reservation-review-actions label { grid-column: 1 / -1; }
+  .reservation-review-actions .button { padding-inline: 10px; }
+  .reservation-accepted-row { align-items: flex-start; flex-direction: column; }
+  .reservation-details { flex-direction: column; }
 }

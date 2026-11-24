@@ -1,6 +1,6 @@
 # TableTap
 
-TableTap is a guest-first QR table ordering website with a private restaurant admin dashboard. Customers choose a table, pick dishes, enter their name and required phone number, then pay at the counter or use Razorpay Standard Checkout for UPI, cards, and other account-enabled payment methods. Admins receive a prominent dashboard alert for new orders, confirm orders, update kitchen status, and see provider-confirmed payments automatically. Orders, payment references, item snapshots, tax, and customer details are stored in PostgreSQL.
+TableTap is a guest-first QR table ordering website with a private restaurant admin dashboard. Customers choose a table, pick from a 50-item Kolkata-style starter menu, enter their name and required phone number, then pay at the counter or use Razorpay Standard Checkout for UPI, cards, and other account-enabled payment methods. Admins receive a prominent dashboard alert for new orders, confirm orders, update kitchen status, and see provider-confirmed payments automatically. Orders, payment references, item snapshots, tax, and customer details are stored in PostgreSQL.
 
 ## Razorpay payments
 
@@ -12,7 +12,7 @@ Razorpay test keys simulate transactions and do not collect real money. Before l
 
 ## Run locally on Windows
 
-Install Node.js 20+ and PostgreSQL 15+ (or Docker).
+Install Node.js 20+ and use any PostgreSQL 15+ database. TableTap uses the standard `pg` Node.js driver and PostgreSQL SQL, not a provider-specific SDK. Local PostgreSQL, Neon, Supabase, Railway, Render, and other PostgreSQL-compatible hosts use the same `DATABASE_URL` setting.
 
 1. Open PowerShell in the project folder. If using Docker, start PostgreSQL:
 
@@ -20,11 +20,11 @@ Install Node.js 20+ and PostgreSQL 15+ (or Docker).
    docker run --name tabletap-db -e POSTGRES_PASSWORD=tabletap-local -e POSTGRES_DB=tabletap -p 5432:5432 -d postgres:16
    ```
 
-2. Make sure `backend/.env` has the database, admin, and payment settings. If that private file is already configured, keep its values. If you need to create it, add the variables named in the Vercel section below with your own values. Never commit `.env` files.
+2. Make sure `backend/.env` has the database, admin, and payment settings. If that private file is already configured, keep its values. If you need a template, copy `backend/.env.example` to `backend/.env` and fill in your own values. Never commit `.env` files.
 
-   Set `DATABASE_URL`, a random `JWT_SECRET` with at least 24 characters, a private `ADMIN_EMAIL`, and a unique `ADMIN_PASSWORD` with at least 12 characters. Set the initial `RESTAURANT_NAME`, `RESTAURANT_TAX_RATE`, `RESTAURANT_TABLE_COUNT`, and UPI display values if useful. Optional `STAFF_NAME`, `STAFF_EMAIL`, and `STAFF_PASSWORD` (12+ characters) bootstrap a staff account; leave all three blank to create staff from Admin → Settings. Optional `KITCHEN_NAME`, `KITCHEN_EMAIL`, and `KITCHEN_PASSWORD` (12+ characters) bootstrap the kitchen display account.
+   Set `DATABASE_URL`, a random `JWT_SECRET` with at least 24 characters, a private `ADMIN_EMAIL`, and a unique `ADMIN_PASSWORD` with at least 12 characters. For local PostgreSQL, a typical URL is `postgresql://postgres:YOUR_PASSWORD@localhost:5432/tabletap`. For a hosted database, paste its PostgreSQL URL; include provider-required TLS options such as `sslmode=require`. Neon users can use its pooled URL for serverless hosting. Set the initial `RESTAURANT_NAME`, `RESTAURANT_TAX_RATE`, `RESTAURANT_TABLE_COUNT`, and UPI display values if useful. Optional `STAFF_NAME`, `STAFF_EMAIL`, and `STAFF_PASSWORD` (12+ characters) bootstrap a staff account; leave all three blank to create staff from Admin → Settings. Optional `KITCHEN_NAME`, `KITCHEN_EMAIL`, and `KITCHEN_PASSWORD` (12+ characters) bootstrap the kitchen display account.
 
-3. Install dependencies and start both services:
+3. Install dependencies and start both services. In development, the Vite server forwards `/api` requests to the local Express server on port 4000:
 
    ```powershell
    npm install
@@ -33,7 +33,7 @@ Install Node.js 20+ and PostgreSQL 15+ (or Docker).
    npm run dev
    ```
 
-4. The API creates/upgrades its tables and loads the starter menu when it starts. Visit `/admin` or use the **Admin login** or **Staff login** link at the bottom of the customer website. 
+4. The API creates/upgrades its tables and installs the 50-item starter menu once. Visit `/admin` or use the **Admin login** or **Staff login** link at the bottom of the customer website.
 
 ## Customer and admin workflow
 
@@ -45,13 +45,19 @@ Install Node.js 20+ and PostgreSQL 15+ (or Docker).
 
 Keep the admin or staff dashboard open to receive new-order and waiter-request popups; it checks every two seconds. If disconnected, the order remains in the dashboard list and is loaded again when the dashboard reconnects. Staff accounts are created by an admin in dashboard Settings; staff do not see daily order or revenue totals and can update payment only for counter orders. Kitchen sign-in is available at `/kitchen`; tickets update every two seconds, include a selectable prep timer, and sync statuses to the customer's fixed order panel.
 
+## Table reservations
+
+Customers can choose **Reserve a table** in the top bar and request a visit with their name, phone number, group size, and date/time. The request is saved as pending and appears in the Reservations tab for both admin and staff; a new request also opens an in-dashboard alert. Staff accepts or rejects the request, and acceptance requires assigning a table. The database prevents the same table being accepted for another two-hour booking window.
+
+The booking charge is set in Admin → Settings. It is saved with the reservation so later setting changes do not alter existing bookings. When staff choose **Take food order** for an accepted reservation, the existing menu order form opens with its customer and table filled in; the booking charge is included in that order total and bill. The schema change is additive and safe to rerun: existing restaurant, menu, order, and payment rows are preserved.
+
 ## Deploy the frontend and backend together on Vercel
 
 The root `vercel.json` configures two services in one Vercel project. Vercel builds `frontend/` as the Vite site and `backend/` as the Express API; `/api/*` goes to the API and all other routes go to the site. Vercel currently offers Services in beta on all plans. See [Vercel Services](https://vercel.com/docs/services) and [Services routing](https://vercel.com/docs/services/routing).
 
-1. Make sure `DATABASE_URL` points to a PostgreSQL database reachable from the internet, with TLS enabled if required by its provider. Vercel cannot connect to a database running only on your computer. Keep the existing database URL as-is; add its current value to Vercel rather than changing it.
+1. Choose any hosted PostgreSQL provider, create a database, and copy the PostgreSQL connection URL it provides. For Neon on Vercel, use its pooled connection URL. Preserve URL options like `sslmode=require` when the provider requires TLS. The backend uses the standard `pg` driver and initializes `backend/db/schema.sql` plus `backend/db/seed.sql` on first request. Vercel cannot connect to a database running only on your computer.
 2. Push this project to a Git repository you control, then import that repository in Vercel. Set the project Root Directory to the repository root (the folder containing this `README.md` and `vercel.json`). Keep the configured services in `vercel.json`; do not set `frontend/` as the project root.
-3. In Vercel → Project Settings → Environment Variables, add the values you already use in `backend/.env` for: `DATABASE_URL`, `DATABASE_SSL`, `JWT_SECRET`, `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `RESTAURANT_NAME`, `RESTAURANT_TAX_RATE`, `RESTAURANT_TABLE_COUNT`, `RESTAURANT_UPI_ID`, `RESTAURANT_UPI_NAME`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`. Optionally add `STAFF_NAME`, `STAFF_EMAIL`, and `STAFF_PASSWORD` to bootstrap one staff login; add `KITCHEN_NAME`, `KITCHEN_EMAIL`, and `KITCHEN_PASSWORD` to bootstrap the kitchen display login. Keep secret values in Vercel's server environment settings; never create `VITE_` variables for secrets. `FRONTEND_URL` is only needed if you intentionally allow a separate browser origin.
+3. In Vercel → Project Settings → Environment Variables, add the values you already use in `backend/.env` for: `DATABASE_URL`, `DATABASE_SSL`, `DATABASE_POOL_MAX`, `DATABASE_CONNECTION_TIMEOUT_MS`, `JWT_SECRET`, `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `RESTAURANT_NAME`, `RESTAURANT_TAX_RATE`, `RESTAURANT_TABLE_COUNT`, `RESTAURANT_UPI_ID`, `RESTAURANT_UPI_NAME`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`. `DATABASE_POOL_MAX` is optional; the default is 5 connections per serverless instance. Optionally add `STAFF_NAME`, `STAFF_EMAIL`, and `STAFF_PASSWORD` to bootstrap one staff login; add `KITCHEN_NAME`, `KITCHEN_EMAIL`, and `KITCHEN_PASSWORD` to bootstrap the kitchen display login. Keep secret values in Vercel's server environment settings; never create `VITE_` variables for secrets. `FRONTEND_URL` is only needed if you intentionally allow a separate browser origin.
 4. Deploy. The API initializes/upgrades the database schema and starter menu on first request. Visit `/api/health` on the Vercel domain, then use **Admin login**, **Staff login**, or **Kitchen display** in the site footer. The restaurant dashboard refreshes orders every two seconds and shows a prominent popup when a new order arrives.
 5. In Razorpay Dashboard, configure a `payment.captured` webhook pointing to `https://YOUR_VERCEL_DOMAIN/api/payments/razorpay/webhook`. Use the same webhook secret already configured as `RAZORPAY_WEBHOOK_SECRET` in Vercel. The test credentials only simulate transactions; use your Razorpay live credentials to collect real payments.
 
@@ -61,7 +67,7 @@ When you change an environment variable in Vercel, redeploy so the new value is 
 
 - Edit **`frontend/src/restaurantContent.js`** to change the default restaurant name, optional logo URL, hero title, hero description, hero/story/visit photos, descriptions, opening hours, phone, address, visit banner, and footer copy. Photo fields accept an Unsplash photo ID or a direct `https://` URL. A logo can be a URL or a file such as `/restaurant-logo.png` placed in `frontend/public/`.
 - The restaurant name and tax rate persist in the database after the first run. Use Admin → Settings to change live values; use `RESTAURANT_NAME` and `RESTAURANT_TAX_RATE` for the initial database defaults.
-- Use Admin → Menu to edit dishes and prices. Starter items are in `backend/db/seed.sql`; changing seed data affects only items not already loaded.
+- Use Admin → Menu to edit dishes and prices. The 50 starter items are in `backend/db/seed.sql`; the seed migration runs once. Older dishes from the previous 100-item Kolkata seed are marked unavailable, not deleted, so old order bills and item snapshots remain intact.
 - Change the look in `frontend/src/premium.css` and component-level styles in `index.css`, `customer.css`, and `admin.css`.
 - For QR stickers, use `https://your-site.example/?table=7` for table 7. Customers can still change the table selection.
 
@@ -71,6 +77,7 @@ When you change an environment variable in Vercel, redeploy so the new value is 
 - `restaurant_settings`: restaurant name, tax percent, table count, and UPI display details.
 - `menu_items`: current name, description, price, category, availability, and photo URL.
 - `orders`: customer name/email/required phone, table, payment method/status, order status, Razorpay order/payment IDs, kitchen handoff time, prep timer, timestamps, subtotal, tax rate/amount and total. Guest tracking secrets are stored as hashes. `payment_webhook_events` deduplicates verified Razorpay webhook events.
+- `reservations`: customer name/phone, party size, requested date/time, snapshot booking charge, assigned table, review status, and timestamps. Reservation-linked table orders store the reservation ID and booking-charge amount.
 - `order_items`: item name and price snapshot, quantity and line total at the time of order.
 - `waiter_alerts`: table calls for service and staff acknowledgements. `order_reviews` stores a customer's one-to-five-star rating after service.
 
